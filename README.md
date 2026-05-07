@@ -420,7 +420,7 @@ The system generates pending MemorySuggestions only when the user clearly states
 
 - `以后我优先看 Agentic RL`
 - `纯预训练暂时不考虑`
-- `目标总包 100w+`
+- `目标总包 150w+`
 - `记住这个偏好`
 
 Each turn creates at most a few candidates. Save writes a verified `Memory`; Edit & Save lets the user adjust it first; Ignore rejects the candidate. Casual chat, temporary thoughts, missing information, Risks, OpenQuestions, and Decisions are not written as long-term memory.

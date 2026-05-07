@@ -131,8 +131,8 @@ async function main() {
   await createMemory(
     {
       type: "Constraint",
-      title: "目标总包 100w+",
-      content: "目标总包 100w+。",
+      title: "目标总包 150w+",
+      content: "目标总包 150w+。",
       tags: ["compensation", "constraint"],
       confidence: 0.95,
       userVerified: true,
