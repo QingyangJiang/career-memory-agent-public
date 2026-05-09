@@ -4,6 +4,8 @@ Latest local run date: 2026-05-09
 
 This report records actual local eval runs. It does not include fabricated provider benchmarks, cost estimates, or metrics that were not emitted by the harness.
 
+`evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local artifacts and are gitignored. The committed public snapshot is this file.
+
 ## Mock Smoke Result
 
 Command:
@@ -39,6 +41,29 @@ Provider/model: `mock/MockLLMProvider`
 - Weak JD over-creation: not observed.
 - Top failure taxonomy: none emitted.
 
+## Mock Core-safety Suite
+
+Command:
+
+```bash
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+```
+
+Provider/model: `mock/MockLLMProvider`
+
+| Metric | Result |
+|---|---:|
+| Cases run | 5 |
+| Passed cases | 4 |
+| Failed cases | 1 |
+| Hard assertion pass rate | 99.0% |
+| Average soft score | 4.50 / 5 |
+| Timeout count | 0 |
+
+Known failure:
+
+- `needs_external_source`: `ERROR_ROUTER_POLICY_MISMATCH`; expected `evidenceSufficiency=none`, actual was `partial`.
+
 ## DeepSeek Flash 3-case Result
 
 Command:
@@ -72,7 +97,7 @@ Provider/model: `deepseek/deepseek-v4-flash`
 
 - Citation mismatch: `ERROR_CITATION_MISMATCH` on `compensation_question_uses_memory_without_dump`.
 - Runtime timeout: `ERROR_RUNTIME_TIMEOUT` on `complete_jd_can_create_objects`.
-- Action-level mismatch: `compare_opportunities` returned `answer_with_info_gaps`; the current taxonomy does not yet map this specific action-level mismatch.
+- Router policy mismatch: `ERROR_ROUTER_POLICY_MISMATCH` on `compare_opportunities`, which returned `answer_with_info_gaps` instead of the expected action level.
 
 ## Targeted DeepSeek Checks
 
@@ -88,11 +113,36 @@ Observed result:
 - `weak_jd_should_not_create_objects`: PASS on rerun. One earlier targeted run in this session returned FAIL before its assertion details were captured, so this case should be watched for possible provider variability.
 - `follow_up_uses_context`: PASS.
 
+## DeepSeek Memory Suite
+
+Command:
+
+```bash
+npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
+```
+
+Provider/model: `deepseek/deepseek-v4-flash`
+
+| Metric | Result |
+|---|---:|
+| Cases run | 4 |
+| Passed cases | 3 |
+| Failed cases | 1 |
+| Hard assertion pass rate | 99.0% |
+| Average soft score | 4.52 / 5 |
+| Average latency | 8,365ms |
+| P95 latency | 17,416ms |
+| Timeout count | 0 |
+
+Known failure:
+
+- `compensation_question_uses_memory_without_dump`: `ERROR_CITATION_MISMATCH`; expected citation/context containing `目标总包 100w+`, actual context cited `目标总包 150w+` and unrelated refs.
+
 ## Not Measured
 
 - Cost: not emitted by the current report payload.
 - Aggregate JSON validity rate: not emitted as a report metric.
-- Full provider comparison: only Mock smoke and DeepSeek Flash local runs are recorded here.
+- Full provider comparison: only Mock and DeepSeek Flash local runs are recorded here.
 - MiMo results: not run.
 - OpenAI-compatible provider results: not run.
 - Full follow-up resolution pass rate: requires running the follow-up suite.

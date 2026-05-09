@@ -11,7 +11,8 @@ export type ErrorTaxonomy =
   | "ERROR_TRACE_MISSING"
   | "ERROR_PROVIDER_MISMATCH"
   | "ERROR_CITATION_MISMATCH"
-  | "ERROR_RUNTIME_TIMEOUT";
+  | "ERROR_RUNTIME_TIMEOUT"
+  | "ERROR_ROUTER_POLICY_MISMATCH";
 
 export interface EvalExpectations {
   expectedActionLevel?: string[];
@@ -277,6 +278,7 @@ export function judgeCase(observation: CaseObservation, expectations: EvalExpect
   if (failed.some((item) => /mustMention/.test(item.name))) errorTaxonomy.add("ERROR_MISSING_ANSWER");
   if (failed.some((item) => /mustCiteAny|mustNotCite/.test(item.name))) errorTaxonomy.add("ERROR_CITATION_MISMATCH");
   if (observation.timedOut || failed.some((item) => /timed out/i.test(item.detail))) errorTaxonomy.add("ERROR_RUNTIME_TIMEOUT");
+  if (failed.some((item) => /expectedActionLevel|expectedEvidenceSufficiency|expectedArtifactTypes/.test(item.name))) errorTaxonomy.add("ERROR_ROUTER_POLICY_MISMATCH");
   if (failed.some((item) => /expectedIntent|expectedFollowUpType|mustUseConversationContext/.test(item.name))) errorTaxonomy.add("ERROR_CONTEXT_MISMATCH");
   if (failed.some((item) => /agentSteps|assistantHasAgentRun/.test(item.name))) errorTaxonomy.add("ERROR_TRACE_MISSING");
   const answer = observation.turns.map((turn) => turn.assistant).join("\n");
@@ -314,7 +316,8 @@ function suggestedFix(error: ErrorTaxonomy) {
     ERROR_TRACE_MISSING: "Ensure every assistant message links to AgentRun and steps are serialized.",
     ERROR_PROVIDER_MISMATCH: "Force eval providerConfig to deepseek-v4-flash and assert metadata.",
     ERROR_CITATION_MISMATCH: "Inspect retrieval/citation filtering so answers cite the expected memory or evidence and exclude unrelated context.",
-    ERROR_RUNTIME_TIMEOUT: "Reduce provider latency, narrow the case workload, or add workflow-level timeout diagnostics for slow turns."
+    ERROR_RUNTIME_TIMEOUT: "Reduce provider latency, narrow the case workload, or add workflow-level timeout diagnostics for slow turns.",
+    ERROR_ROUTER_POLICY_MISMATCH: "Inspect semantic router output, post-policy guard corrections, and actionLevel thresholds."
   };
   return fixes[error];
 }

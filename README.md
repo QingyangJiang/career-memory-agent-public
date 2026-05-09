@@ -20,6 +20,17 @@ This repository is intended as a portfolio piece for Reliable LLM Agents, Agent 
 
 Latest local eval results are recorded in [evals/career-agent/sample-report.md](evals/career-agent/sample-report.md). The current snapshot includes a 3-case Mock smoke run and a 3-case DeepSeek Flash run with actual pass/fail, hard assertion pass rate, soft score, latency, timeout, and limitation notes.
 
+| Eval run | Result | Evidence |
+|---|---|---|
+| Mock smoke | 3/3 PASS | 100.0% hard assertion pass rate |
+| Targeted DeepSeek `weak_jd_should_not_create_objects` | PASS | Weak JD did not over-create objects on rerun |
+| Targeted DeepSeek `follow_up_uses_context` | PASS | Follow-up context case passed |
+| DeepSeek `memory` suite | 3/4 PASS | Exposes citation mismatch on compensation memory retrieval |
+| Mock `core-safety` suite | 4/5 PASS | Exposes Mock evidence-sufficiency mismatch on external-source request |
+| Diagnostic DeepSeek 3-case run | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and complete JD timeout |
+
+The diagnostic DeepSeek run is useful failure evidence, not a full benchmark.
+
 Suite-based eval commands are available for focused runs:
 
 ```bash
@@ -332,6 +343,11 @@ npm run eval:career-agent -- --provider=deepseek-flash
 npm run eval:career-agent -- --provider=mock-smoke
 npm run eval:career-agent -- --case=weak_jd_should_not_create_objects
 npm run eval:career-agent -- --maxCases=3
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+npm run eval:career-agent -- --provider=deepseek-flash --suite=core-safety
+npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
+npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
 ```
 
 InspectAI-compatible runtime:

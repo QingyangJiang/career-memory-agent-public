@@ -34,14 +34,18 @@ After TypeScript, router, eval, memory, opportunity, or provider changes, run as
 ```bash
 npm run typecheck
 npm run build
-npm run eval:career-agent -- --provider=mock-smoke --maxCases=3
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
 ```
 
 If `DEEPSEEK_API_KEY` is available and the change affects LLM routing/evaluation, also run:
 
 ```bash
-npm run eval:career-agent -- --provider=deepseek-flash --maxCases=3
+npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
+npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
 ```
+
+Use `--maxCases=3` as a quick diagnostic option only; prefer named suites for validation evidence.
 
 If a command fails, determine whether the failure is caused by the current change or pre-existing repo state. Do not hide failures.
 
