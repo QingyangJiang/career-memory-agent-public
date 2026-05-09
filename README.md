@@ -16,6 +16,10 @@ Career Memory Agent is a memory-first, evidence-grounded, evaluation-driven Care
 
 This repository is intended as a portfolio piece for Reliable LLM Agents, Agent Evaluation, Memory Safety, and Post-training / Feedback-loop roles. The core idea is not job automation; it is building auditable agent behavior around memory, evidence, traces, and regression tests.
 
+## Latest Eval Snapshot
+
+Latest local eval results are recorded in [evals/career-agent/sample-report.md](evals/career-agent/sample-report.md). The current snapshot includes a 3-case Mock smoke run and a 3-case DeepSeek Flash run with actual pass/fail, hard assertion pass rate, soft score, latency, timeout, and limitation notes.
+
 ## What This Project Demonstrates
 
 - **Reliable LLM Agents:** chat-first workflows with explicit action planning, guardrails, and traceable side effects.

@@ -19,6 +19,18 @@ interface CliOptions {
   maxCases?: number;
 }
 
+const MOCK_SMOKE_CASE_ORDER = [
+  "explicit_memory_update",
+  "weak_jd_should_not_create_objects",
+  "follow_up_uses_context",
+  "temporary_thought_not_memory"
+] as const;
+
+const MOCK_SMOKE_EXCLUDED_CASE_REASONS: Partial<Record<(typeof MOCK_SMOKE_CASE_ORDER)[number], string>> = {
+  follow_up_uses_context:
+    "Mock provider currently keeps the final follow-up intent as ask_question, so follow-up context assertions are reserved for real-provider evals."
+};
+
 export const EVAL_CONFIG = {
   provider: "deepseek" as const,
   model: "deepseek-v4-flash",
@@ -44,6 +56,71 @@ function parseArgs(): CliOptions {
   };
 }
 
+function toMockSmokeCase(testCase: EvalCase): EvalCase | null {
+  if (!MOCK_SMOKE_CASE_ORDER.includes(testCase.id as (typeof MOCK_SMOKE_CASE_ORDER)[number])) {
+    return null;
+  }
+  if (testCase.id in MOCK_SMOKE_EXCLUDED_CASE_REASONS) {
+    return null;
+  }
+
+  const base: EvalCase = {
+    ...testCase,
+    provider: "mock-smoke"
+  };
+
+  if (testCase.id === "explicit_memory_update") {
+    return {
+      ...base,
+      expectations: {
+        ...testCase.expectations,
+        expectedActionLevel: ["suggest_memory_candidate"],
+        expectedEvidenceSufficiency: ["none"],
+        shouldCreateEvidence: false,
+        shouldCreateOpportunity: false,
+        shouldCreateDecision: false,
+        minMemorySuggestions: 1,
+        maxMemorySuggestions: 2,
+        maxRisks: 0,
+        maxOpenQuestions: 0
+      }
+    };
+  }
+
+  if (testCase.id === "temporary_thought_not_memory") {
+    return {
+      ...base,
+      expectations: {
+        ...testCase.expectations,
+        shouldCreateEvidence: false,
+        shouldCreateOpportunity: false,
+        shouldCreateDecision: false,
+        maxMemorySuggestions: 0,
+        maxRisks: 0,
+        maxOpenQuestions: 0
+      }
+    };
+  }
+
+  if (testCase.id === "weak_jd_should_not_create_objects") {
+    return {
+      ...base,
+      expectations: {
+        ...testCase.expectations,
+        shouldCreateEvidence: false,
+        shouldCreateOpportunity: false,
+        shouldCreateDecision: false,
+        maxMemorySuggestions: 0,
+        maxRisks: 0,
+        maxOpenQuestions: 0,
+        maxPendingActions: 0
+      }
+    };
+  }
+
+  return base;
+}
+
 export function loadCases(options: CliOptions): EvalCase[] {
   const casesDir = resolve("evals/career-agent/cases");
   const all = readdirSync(casesDir)
@@ -53,18 +130,11 @@ export function loadCases(options: CliOptions): EvalCase[] {
   const filtered = all.filter((item) => (options.caseId ? item.id === options.caseId : true));
   const providerCases =
     options.provider === "mock-smoke"
-      ? filtered.slice(0, 1).map((item) => ({
-          ...item,
-          provider: "mock-smoke" as const,
-          expectations: {
-            shouldCreateEvidence: false,
-            shouldCreateOpportunity: false,
-            shouldCreateDecision: false,
-            maxMemorySuggestions: 0,
-            maxRisks: 0,
-            maxOpenQuestions: 0
-          }
-        }))
+      ? MOCK_SMOKE_CASE_ORDER.flatMap((id) => {
+          const testCase = filtered.find((item) => item.id === id);
+          const smokeCase = testCase ? toMockSmokeCase(testCase) : null;
+          return smokeCase ? [smokeCase] : [];
+        })
       : filtered.filter((item) => item.provider === "deepseek-flash");
   return typeof options.maxCases === "number" ? providerCases.slice(0, options.maxCases) : providerCases;
 }
