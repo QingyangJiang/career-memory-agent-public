@@ -2,9 +2,10 @@ import { loadEnvConfig } from "@next/env";
 import { existsSync, mkdirSync, readdirSync, copyFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
+import type { LLMProviderConfig } from "../../lib/llm/config";
 import { judgeCase, type CaseObservation, type EvalExpectations, type TurnObservation } from "./judge";
 
-interface EvalCase {
+export interface EvalCase {
   id: string;
   title: string;
   provider: "deepseek-flash" | "mock-smoke";
@@ -18,7 +19,7 @@ interface CliOptions {
   maxCases?: number;
 }
 
-const EVAL_CONFIG = {
+export const EVAL_CONFIG = {
   provider: "deepseek" as const,
   model: "deepseek-v4-flash",
   thinking: "disabled" as const,
@@ -43,7 +44,7 @@ function parseArgs(): CliOptions {
   };
 }
 
-function loadCases(options: CliOptions): EvalCase[] {
+export function loadCases(options: CliOptions): EvalCase[] {
   const casesDir = resolve("evals/career-agent/cases");
   const all = readdirSync(casesDir)
     .filter((file) => file.endsWith(".json"))
@@ -68,7 +69,7 @@ function loadCases(options: CliOptions): EvalCase[] {
   return typeof options.maxCases === "number" ? providerCases.slice(0, options.maxCases) : providerCases;
 }
 
-function prepareEvalDb() {
+export function prepareEvalDb() {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const historyDir = resolve("evals/career-agent/history");
   mkdirSync(historyDir, { recursive: true });
@@ -79,7 +80,7 @@ function prepareEvalDb() {
   return dbPath;
 }
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+export async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
@@ -96,7 +97,9 @@ function countPending(metadata: any) {
   return (created.memorySuggestionsCount ?? 0) + (created.risksCount ?? 0) + (created.openQuestionsCount ?? 0);
 }
 
-async function observeCase(testCase: EvalCase, providerConfig: any): Promise<CaseObservation> {
+export type EvalProviderConfig = LLMProviderConfig & { model: string };
+
+async function observeCase(testCase: EvalCase, providerConfig: EvalProviderConfig): Promise<CaseObservation> {
   const { sendMessage } = await import("../../lib/chat/service");
   const { prisma } = await import("../../lib/db/prisma");
   let threadId: string | null = null;
@@ -154,9 +157,16 @@ async function observeCase(testCase: EvalCase, providerConfig: any): Promise<Cas
       shouldShowInfoGaps: metadata.shouldShowInfoGaps ?? metadata.classification?.shouldShowInfoGaps,
       latencyMs,
       tokenUsage: provider.tokenUsage,
+      metadata,
+      createdObjects: created,
       usedRecentMessagesCount: conversationContext.usedRecentMessagesCount ?? metadata.classification?.usedRecentMessagesCount,
       usedLastAssistantAnswer: conversationContext.usedLastAssistantAnswer ?? metadata.classification?.usedLastAssistantAnswer,
-      resolvedReference: conversationContext.resolvedReference ?? metadata.classification?.resolvedReference
+      resolvedReference: conversationContext.resolvedReference ?? metadata.classification?.resolvedReference,
+      citationTitles: (metadata.citations ?? []).map((item: any) => String(item.title ?? "")).filter(Boolean),
+      contextRefTitles: (metadata.contextRefs ?? [])
+        .filter((item: any) => item.entityType === "memory")
+        .map((item: any) => String(item.title ?? ""))
+        .filter(Boolean)
     });
   }
   return {
@@ -167,6 +177,8 @@ async function observeCase(testCase: EvalCase, providerConfig: any): Promise<Cas
     turns
   };
 }
+
+export { observeCase };
 
 function percentile(values: number[], p: number) {
   if (!values.length) return 0;
@@ -202,6 +214,7 @@ function writeReports(payload: any) {
       lines.push(`    assistant summary: ${turn.assistant.slice(0, 220).replace(/\n/g, " ")}${turn.assistant.length > 220 ? "..." : ""}`);
       lines.push(`    created: evidence=${turn.createdEvidence}, opportunity=${turn.createdOpportunity}, decision=${turn.createdDecision}, memorySuggestions=${turn.memorySuggestionsCount}, risks=${turn.risksCount}, openQuestions=${turn.openQuestionsCount}`);
       lines.push(`    trace: agentRun=${turn.agentRunId ?? "missing"}, steps=${turn.agentStepsCount}, actionLevel=${turn.actionLevel}, evidence=${turn.evidenceSufficiency}`);
+      if (turn.citationTitles.length || turn.contextRefTitles.length) lines.push(`    citations/context: ${[...turn.citationTitles, ...turn.contextRefTitles].join(", ")}`);
       if (turn.intent === "follow_up") lines.push(`    follow-up: type=${turn.followUpType}, usedLastAssistant=${turn.usedLastAssistantAnswer}, resolved=${turn.resolvedReference ?? ""}`);
     }
     const failed = item.judgement.hardAssertions.filter((assertion: any) => !assertion.passed);
@@ -217,7 +230,7 @@ async function main() {
   loadEnvConfig(process.cwd());
   const options = parseArgs();
   const cases = loadCases(options);
-  const providerConfig =
+  const providerConfig: EvalProviderConfig =
     options.provider === "mock-smoke"
       ? { provider: "mock", model: "MockLLMProvider", providerLabel: "MockLLMProvider", thinking: "disabled", reasoningEffort: "none", timeoutMs: 60000 }
       : { ...EVAL_CONFIG, providerLabel: "DeepSeek Flash" };
@@ -298,7 +311,9 @@ async function main() {
   console.log(`Report written to evals/career-agent/report.md`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

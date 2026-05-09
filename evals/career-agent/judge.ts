@@ -33,6 +33,8 @@ export interface EvalExpectations {
   mustMention?: string[];
   mustMentionAny?: string[];
   mustNotMention?: string[];
+  mustCiteAny?: string[];
+  mustNotCite?: string[];
   perTurn?: Array<Partial<EvalExpectations>>;
 }
 
@@ -66,9 +68,13 @@ export interface TurnObservation {
   shouldShowInfoGaps?: boolean;
   latencyMs: number;
   tokenUsage?: unknown;
+  metadata?: Record<string, unknown>;
+  createdObjects?: Record<string, unknown>;
   usedRecentMessagesCount?: number;
   usedLastAssistantAnswer?: boolean;
   resolvedReference?: string;
+  citationTitles: string[];
+  contextRefTitles: string[];
 }
 
 export interface CaseObservation {
@@ -139,6 +145,25 @@ function checkTurn(expectations: EvalExpectations, turn: TurnObservation, label:
   }
   if (expectations.mustUseConversationContext) {
     addAssertion(assertions, `${label}: mustUseConversationContext`, Boolean(turn.usedLastAssistantAnswer) && (turn.usedRecentMessagesCount ?? 0) >= 2, `usedLastAssistant=${turn.usedLastAssistantAnswer}, recent=${turn.usedRecentMessagesCount}`);
+  }
+  if (expectations.mustCiteAny?.length) {
+    const citationText = [...turn.citationTitles, ...turn.contextRefTitles].join("\n").toLowerCase();
+    addAssertion(
+      assertions,
+      `${label}: mustCiteAny`,
+      expectations.mustCiteAny.some((item) => citationText.includes(item.toLowerCase())),
+      `expectedAny=${expectations.mustCiteAny.join(",")}; actual=${[...turn.citationTitles, ...turn.contextRefTitles].join(",")}`
+    );
+  }
+  if (expectations.mustNotCite?.length) {
+    const citationText = [...turn.citationTitles, ...turn.contextRefTitles].join("\n").toLowerCase();
+    const forbidden = expectations.mustNotCite.filter((item) => citationText.includes(item.toLowerCase()));
+    addAssertion(
+      assertions,
+      `${label}: mustNotCite`,
+      forbidden.length === 0,
+      `forbidden=${forbidden.join(",")}; actual=${[...turn.citationTitles, ...turn.contextRefTitles].join(",")}`
+    );
   }
   if (expectations.expectedEvidenceSufficiency?.length) {
     const expected = expectations.expectedEvidenceSufficiency.map((item) => (item === "weak" ? "partial" : item));

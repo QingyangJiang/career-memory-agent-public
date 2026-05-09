@@ -10,6 +10,28 @@ A local-first, memory-safe, evidence-grounded career agent system with provider 
 
 Career Memory Agent is an experimental AI agent for managing career opportunities, job descriptions, interview preparation, and long-term career memory.
 
+## 30-second Summary
+
+Career Memory Agent is a memory-first, evidence-grounded, evaluation-driven Career Agent for long-running career decision workflows. It demonstrates user-confirmed long-term memory, evidence-first opportunity analysis, AgentRun / AgentStep traceability, a provider-based LLM boundary, and case-driven evaluation.
+
+This repository is intended as a portfolio piece for Reliable LLM Agents, Agent Evaluation, Memory Safety, and Post-training / Feedback-loop roles. The core idea is not job automation; it is building auditable agent behavior around memory, evidence, traces, and regression tests.
+
+## What This Project Demonstrates
+
+- **Reliable LLM Agents:** chat-first workflows with explicit action planning, guardrails, and traceable side effects.
+- **Memory Safety:** durable `Memory` requires a pending `MemorySuggestion` plus user confirmation.
+- **Evidence-grounded Agent Workflows:** raw JD, interview, recruiter, and resume content is treated as `Evidence` before derived Opportunity, Risk, OpenQuestion, or Decision objects.
+- **AgentRun / AgentStep Traceability:** meaningful agent actions are persisted for debugging and eval review.
+- **Case-driven Evaluation:** hard assertions protect behavioral invariants; soft scores track answer quality and workflow fit.
+- **Feedback-loop Engineering:** eval cases, reports, provider metadata, and failure taxonomy make model and router iteration auditable.
+
+## Documentation Map
+
+- [Evaluation design](docs/evaluation-design.md): methodology, hard assertions, soft scoring, core risks, and failure taxonomy.
+- [Interview demo script](docs/demo-script.md): 3-4 minute walkthrough for memory safety, evidence-grounded JD analysis, and follow-up resolution.
+- [MiMo integration plan](docs/mimo-integration.md): planned provider integration through the existing LLM boundary.
+- [InspectAI adapter notes](evals/career-agent/inspect/README.md): standardized dataset / solver / scorer adapter around the existing domain oracle.
+
 This is not a chatbot shell. It treats the career process as a long-running agent workflow:
 
 - conversations generate memory suggestions, not silent memory writes;
@@ -238,6 +260,8 @@ The goal is to evaluate MiMo in a real-world agent workflow rather than isolated
 
 Career Memory Agent includes an evaluation harness for testing whether the agent behaves correctly in realistic career workflows.
 
+For the full methodology, see [docs/evaluation-design.md](docs/evaluation-design.md). The README keeps the short version for quick scanning.
+
 ### Evaluation Case Types
 
 | Case Type | What it tests |
@@ -293,6 +317,30 @@ npm run eval:career-agent -- --provider=deepseek-flash
 npm run eval:career-agent -- --provider=mock-smoke
 npm run eval:career-agent -- --case=weak_jd_should_not_create_objects
 npm run eval:career-agent -- --maxCases=3
+```
+
+InspectAI-compatible runtime:
+
+```bash
+pip install inspect-ai
+npm run inspect:eval
+npm run inspect:view
+```
+
+`npm run inspect:eval` loads the same JSON cases as an InspectAI dataset, calls the TypeScript bridge, runs the real `observeCase()` / `sendMessage()` path, and scores with the existing `judgeCase()` oracle. `npm run inspect:view` opens the interactive Inspect log viewer for input turns, assistant outputs, metadata, created objects, hard assertions, soft scores, taxonomy, latency, token usage, AgentRun IDs, and AgentStep counts.
+
+The legacy runner remains the CI/report path:
+
+```bash
+npm run eval:career-agent
+```
+
+It continues writing `evals/career-agent/report.md` and `evals/career-agent/report.json`.
+
+Adapter smoke test:
+
+```bash
+npm run inspect:smoke
 ```
 
 Cases live in `evals/career-agent/cases/` as JSON files with ordered chat `turns`, hard `expectations`, and optional `perTurn` expectations for multi-turn cases. Hard assertions check provider/model, object creation, Memory safety, direct Memory writes, MemorySuggestion type safety, follow-up limits, answer text constraints, AgentRun linkage, and AgentStep trace presence. Soft scoring is rule-based across answer relevance, naturalness, helpfulness, info-gap handling, memory safety, object correctness, structured enhancement, over-automation, and trace completeness.
