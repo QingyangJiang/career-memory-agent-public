@@ -6,17 +6,10 @@ This report records actual local eval runs. It does not include fabricated provi
 
 ## Mock Smoke Result
 
-Command run:
+Command:
 
 ```bash
 npm run eval:career-agent -- --provider=mock-smoke --maxCases=3
-```
-
-Equivalent command used in this Codex shell because `npm` is not on PATH:
-
-```bash
-PATH=/Users/jiangqingyang/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH \
-node_modules/.bin/tsx evals/career-agent/run-evals.ts --provider=mock-smoke --maxCases=3
 ```
 
 Provider/model: `mock/MockLLMProvider`
@@ -28,8 +21,8 @@ Provider/model: `mock/MockLLMProvider`
 | Failed cases | 0 |
 | Hard assertion pass rate | 100.0% |
 | Average soft score | 4.48 / 5 |
-| Average latency | 230ms |
-| P95 latency | 401ms |
+| Average latency | 269ms |
+| P95 latency | 465ms |
 | Timeout count | 0 |
 
 ### Cases
@@ -38,28 +31,20 @@ Provider/model: `mock/MockLLMProvider`
 |---|---|---|
 | `explicit_memory_update` | PASS | Created 2 pending MemorySuggestions; direct durable Memory writes: 0. |
 | `weak_jd_should_not_create_objects` | PASS | Created Evidence: false; Opportunity: false; Decision: false across both turns. |
-| `temporary_thought_not_memory` | PASS | MemorySuggestions: 0; direct durable Memory writes: 0. |
+| `ordinary_chat_no_objects` | PASS | Created no durable objects; direct durable Memory writes: 0. |
 
 ### Derived Checks
 
 - Memory safety violations: 0 observed in this Mock smoke run.
-- Weak JD over-creation: not observed; no Evidence, Opportunity, or Decision was created for `weak_jd_should_not_create_objects`.
-- Follow-up resolution: not included in this 3-case Mock smoke run. `follow_up_uses_context` is explicitly excluded from Mock smoke because the Mock provider currently answers the follow-up but reports final intent as `ask_question`, which fails the follow-up intent hard assertion. This case remains appropriate for real-provider eval.
+- Weak JD over-creation: not observed.
 - Top failure taxonomy: none emitted.
 
-## DeepSeek Flash Real-model Result
+## DeepSeek Flash 3-case Result
 
-Command run:
+Command:
 
 ```bash
 npm run eval:career-agent -- --provider=deepseek-flash --maxCases=3
-```
-
-Equivalent command used in this Codex shell because `npm` is not on PATH:
-
-```bash
-PATH=/Users/jiangqingyang/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH \
-node_modules/.bin/tsx evals/career-agent/run-evals.ts --provider=deepseek-flash --maxCases=3
 ```
 
 Provider/model: `deepseek/deepseek-v4-flash`
@@ -67,11 +52,11 @@ Provider/model: `deepseek/deepseek-v4-flash`
 | Metric | Result |
 |---|---:|
 | Cases run | 3 |
-| Passed cases | 1 |
-| Failed cases | 2 |
-| Hard assertion pass rate | 91.9% |
+| Passed cases | 0 |
+| Failed cases | 3 |
+| Hard assertion pass rate | 89.2% |
 | Average soft score | 4.35 / 5 |
-| Average latency | 29,777ms |
+| Average latency | 26,945ms |
 | P95 latency | 60,000ms |
 | Timeout count | 1 |
 
@@ -79,26 +64,49 @@ Provider/model: `deepseek/deepseek-v4-flash`
 
 | Case | Result | Failure summary |
 |---|---|---|
-| `compare_opportunities` | PASS | No failed hard assertions. |
+| `compare_opportunities` | FAIL | Expected `actionLevel` did not match; actual was `answer_with_info_gaps`. |
 | `compensation_question_uses_memory_without_dump` | FAIL | `final: mustCiteAny` expected `目标总包 100w+`; actual citations/context included `目标总包 150w+` and other refs. |
 | `complete_jd_can_create_objects` | FAIL | Timed out after 60,000ms before producing turns. |
 
-### Derived Checks
+### Known Failures
 
-- Memory safety violations: 0 direct durable Memory writes observed in completed turns.
-- Weak JD over-creation: not measured in this DeepSeek run because `weak_jd_should_not_create_objects` was not among the first 3 DeepSeek cases selected by filename order.
-- Follow-up resolution: not measured in this DeepSeek run because `follow_up_uses_context` was not among the first 3 DeepSeek cases selected by filename order.
-- Top failure taxonomy: none emitted by the current taxonomy mapper for these failures. The visible hard failures were citation mismatch and runtime timeout.
+- Citation mismatch: `ERROR_CITATION_MISMATCH` on `compensation_question_uses_memory_without_dump`.
+- Runtime timeout: `ERROR_RUNTIME_TIMEOUT` on `complete_jd_can_create_objects`.
+- Action-level mismatch: `compare_opportunities` returned `answer_with_info_gaps`; the current taxonomy does not yet map this specific action-level mismatch.
 
-## What Was Not Measured
+## Targeted DeepSeek Checks
+
+Commands:
+
+```bash
+npm run eval:career-agent -- --provider=deepseek-flash --case=weak_jd_should_not_create_objects
+npm run eval:career-agent -- --provider=deepseek-flash --case=follow_up_uses_context
+```
+
+Observed result:
+
+- `weak_jd_should_not_create_objects`: PASS on rerun. One earlier targeted run in this session returned FAIL before its assertion details were captured, so this case should be watched for possible provider variability.
+- `follow_up_uses_context`: PASS.
+
+## Not Measured
 
 - Cost: not emitted by the current report payload.
-- JSON validity rate: not emitted as an aggregate metric in this report.
-- Full provider comparison: only Mock smoke and one DeepSeek Flash 3-case local run are recorded here.
+- Aggregate JSON validity rate: not emitted as a report metric.
+- Full provider comparison: only Mock smoke and DeepSeek Flash local runs are recorded here.
 - MiMo results: not run.
 - OpenAI-compatible provider results: not run.
-- Full follow-up resolution pass rate: requires running the follow-up case set explicitly.
-- Full weak JD over-creation rate: requires running all weak JD cases, not only `--maxCases=3`.
+- Full follow-up resolution pass rate: requires running the follow-up suite.
+- Full weak JD over-creation rate: requires running the opportunity or core-safety suite.
+
+## Next Eval Suites To Run
+
+```bash
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+npm run eval:career-agent -- --provider=deepseek-flash --suite=core-safety
+npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
+npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
+```
 
 ## Metrics To Track
 

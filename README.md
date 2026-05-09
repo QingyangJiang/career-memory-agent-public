@@ -20,6 +20,17 @@ This repository is intended as a portfolio piece for Reliable LLM Agents, Agent 
 
 Latest local eval results are recorded in [evals/career-agent/sample-report.md](evals/career-agent/sample-report.md). The current snapshot includes a 3-case Mock smoke run and a 3-case DeepSeek Flash run with actual pass/fail, hard assertion pass rate, soft score, latency, timeout, and limitation notes.
 
+Suite-based eval commands are available for focused runs:
+
+```bash
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety --maxCases=3
+npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
+npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
+```
+
+These are targeted regression suites, not a full benchmark claim.
+
 ## What This Project Demonstrates
 
 - **Reliable LLM Agents:** chat-first workflows with explicit action planning, guardrails, and traceable side effects.

@@ -15,13 +15,37 @@ export interface EvalCase {
 
 interface CliOptions {
   provider: "deepseek-flash" | "mock-smoke";
+  suite?: EvalSuite;
   caseId?: string;
   maxCases?: number;
 }
 
+type EvalSuite = "core-safety" | "follow-up" | "opportunity" | "memory";
+
+const EVAL_SUITES: Record<EvalSuite, string[]> = {
+  "core-safety": [
+    "explicit_memory_update",
+    "temporary_thought_not_memory",
+    "weak_jd_should_not_create_objects",
+    "ordinary_chat_no_objects",
+    "needs_external_source",
+    "follow_up_uses_context"
+  ],
+  memory: [
+    "explicit_memory_update",
+    "temporary_thought_not_memory",
+    "preference_update_after_normal_chat",
+    "compensation_question_uses_memory_without_dump"
+  ],
+  "follow-up": ["follow_up_uses_context"],
+  opportunity: ["weak_jd_should_not_create_objects", "complete_jd_can_create_objects", "multi_turn_evidence_completion"]
+};
+
 const MOCK_SMOKE_CASE_ORDER = [
   "explicit_memory_update",
   "weak_jd_should_not_create_objects",
+  "ordinary_chat_no_objects",
+  "needs_external_source",
   "follow_up_uses_context",
   "temporary_thought_not_memory"
 ] as const;
@@ -46,11 +70,16 @@ function parseArgs(): CliOptions {
   const args = process.argv.slice(2);
   const get = (name: string) => args.find((arg) => arg.startsWith(`--${name}=`))?.split("=").slice(1).join("=");
   const provider = (get("provider") ?? "deepseek-flash") as CliOptions["provider"];
+  const suite = get("suite") as EvalSuite | undefined;
   if (provider !== "deepseek-flash" && provider !== "mock-smoke") {
     throw new Error(`Unsupported provider ${provider}. Use deepseek-flash or mock-smoke.`);
   }
+  if (suite && !Object.hasOwn(EVAL_SUITES, suite)) {
+    throw new Error(`Unsupported suite ${suite}. Use core-safety, follow-up, opportunity, or memory.`);
+  }
   return {
     provider,
+    suite,
     caseId: get("case"),
     maxCases: get("maxCases") ? Number(get("maxCases")) : undefined
   };
@@ -118,6 +147,21 @@ function toMockSmokeCase(testCase: EvalCase): EvalCase | null {
     };
   }
 
+  if (testCase.id === "ordinary_chat_no_objects" || testCase.id === "needs_external_source") {
+    return {
+      ...base,
+      expectations: {
+        ...testCase.expectations,
+        shouldCreateEvidence: false,
+        shouldCreateOpportunity: false,
+        shouldCreateDecision: false,
+        maxMemorySuggestions: 0,
+        maxRisks: 0,
+        maxOpenQuestions: 0
+      }
+    };
+  }
+
   return base;
 }
 
@@ -127,10 +171,11 @@ export function loadCases(options: CliOptions): EvalCase[] {
     .filter((file) => file.endsWith(".json"))
     .sort()
     .map((file) => JSON.parse(require("node:fs").readFileSync(join(casesDir, file), "utf8")) as EvalCase);
-  const filtered = all.filter((item) => (options.caseId ? item.id === options.caseId : true));
+  const suiteIds = options.suite ? new Set(EVAL_SUITES[options.suite]) : undefined;
+  const filtered = all.filter((item) => (options.caseId ? item.id === options.caseId : true)).filter((item) => (suiteIds ? suiteIds.has(item.id) : true));
   const providerCases =
     options.provider === "mock-smoke"
-      ? MOCK_SMOKE_CASE_ORDER.flatMap((id) => {
+      ? (options.suite ? EVAL_SUITES[options.suite] : [...MOCK_SMOKE_CASE_ORDER]).flatMap((id) => {
           const testCase = filtered.find((item) => item.id === id);
           const smokeCase = testCase ? toMockSmokeCase(testCase) : null;
           return smokeCase ? [smokeCase] : [];

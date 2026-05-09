@@ -9,7 +9,9 @@ export type ErrorTaxonomy =
   | "ERROR_MARKDOWN_RENDERING"
   | "ERROR_AGENT_STATUS"
   | "ERROR_TRACE_MISSING"
-  | "ERROR_PROVIDER_MISMATCH";
+  | "ERROR_PROVIDER_MISMATCH"
+  | "ERROR_CITATION_MISMATCH"
+  | "ERROR_RUNTIME_TIMEOUT";
 
 export interface EvalExpectations {
   expectedActionLevel?: string[];
@@ -273,6 +275,8 @@ export function judgeCase(observation: CaseObservation, expectations: EvalExpect
   if (failed.some((item) => /Memory|memorySuggestion/.test(item.name))) errorTaxonomy.add("ERROR_MEMORY_POLLUTION");
   if (failed.some((item) => /maxRisks|maxOpenQuestions|maxPendingActions/.test(item.name))) errorTaxonomy.add("ERROR_TOO_MANY_FOLLOWUPS");
   if (failed.some((item) => /mustMention/.test(item.name))) errorTaxonomy.add("ERROR_MISSING_ANSWER");
+  if (failed.some((item) => /mustCiteAny|mustNotCite/.test(item.name))) errorTaxonomy.add("ERROR_CITATION_MISMATCH");
+  if (observation.timedOut || failed.some((item) => /timed out/i.test(item.detail))) errorTaxonomy.add("ERROR_RUNTIME_TIMEOUT");
   if (failed.some((item) => /expectedIntent|expectedFollowUpType|mustUseConversationContext/.test(item.name))) errorTaxonomy.add("ERROR_CONTEXT_MISMATCH");
   if (failed.some((item) => /agentSteps|assistantHasAgentRun/.test(item.name))) errorTaxonomy.add("ERROR_TRACE_MISSING");
   const answer = observation.turns.map((turn) => turn.assistant).join("\n");
@@ -308,7 +312,9 @@ function suggestedFix(error: ErrorTaxonomy) {
     ERROR_MARKDOWN_RENDERING: "Ensure answer contains valid Markdown and renderer handles GFM.",
     ERROR_AGENT_STATUS: "Inspect optimistic status card and failure state handling.",
     ERROR_TRACE_MISSING: "Ensure every assistant message links to AgentRun and steps are serialized.",
-    ERROR_PROVIDER_MISMATCH: "Force eval providerConfig to deepseek-v4-flash and assert metadata."
+    ERROR_PROVIDER_MISMATCH: "Force eval providerConfig to deepseek-v4-flash and assert metadata.",
+    ERROR_CITATION_MISMATCH: "Inspect retrieval/citation filtering so answers cite the expected memory or evidence and exclude unrelated context.",
+    ERROR_RUNTIME_TIMEOUT: "Reduce provider latency, narrow the case workload, or add workflow-level timeout diagnostics for slow turns."
   };
   return fixes[error];
 }

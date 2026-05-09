@@ -105,6 +105,8 @@ The current taxonomy groups failures into actionable engineering categories:
 - `ERROR_AGENT_STATUS`: status or failure state is inconsistent.
 - `ERROR_TRACE_MISSING`: AgentRun or AgentStep records are absent.
 - `ERROR_PROVIDER_MISMATCH`: eval did not use the expected provider/model.
+- `ERROR_CITATION_MISMATCH`: cited context did not include required evidence or included forbidden context.
+- `ERROR_RUNTIME_TIMEOUT`: a case or turn timed out before producing a usable observation.
 
 ## Relation To Reliable Agents And Feedback Loops
 
