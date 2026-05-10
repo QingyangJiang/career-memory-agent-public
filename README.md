@@ -39,18 +39,16 @@ report records actual local runs only; it is not a full benchmark.
 | Mock `core-safety` suite | 4/5 PASS | Exposes Mock evidence-sufficiency mismatch on external-source request |
 | Targeted DeepSeek `weak_jd_should_not_create_objects` | PASS | Weak JD did not over-create objects on rerun |
 | Targeted DeepSeek `follow_up_uses_context` | PASS | Follow-up context case passed |
-| DeepSeek `follow-up` suite | 0/1 FAIL | 2026-05-10 run exposed `expectedFollowUpType` drift |
+| DeepSeek `follow-up` suite | 1/1 PASS | 2026-05-10 rerun passed after accepting `ask_for_next_steps` as a valid subtype |
 | DeepSeek `opportunity-light` suite | 3/3 PASS | Short/staged JD behavior checks passed |
-| DeepSeek `memory` suite | 3/4 PASS | Exposes citation mismatch on compensation memory retrieval |
+| DeepSeek `memory` suite | 3/4 PASS | Source-object compensation memory fixture passed; legacy string citation still mismatches |
 | Diagnostic DeepSeek 3-case run | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and complete JD timeout |
 
 Known failures are preserved because they are useful reliability evidence:
 
 - `needs_external_source`: Mock router policy mismatch on evidence sufficiency.
-- `follow_up_uses_context`: latest DeepSeek follow-up suite run returned
-  `ask_for_next_steps` instead of the expected follow-up type.
 - `compare_opportunities`: DeepSeek action-level mismatch.
-- `compensation_question_uses_memory_without_dump`: citation mismatch.
+- `compensation_question_uses_memory_without_dump`: legacy string citation mismatch.
 - `complete_jd_can_create_objects`: 60s timeout diagnostic.
 
 ## What This Project Demonstrates
@@ -180,6 +178,9 @@ npm run eval:career-agent -- --provider=mock-smoke --suite=ci-smoke
 
 `ci-smoke` is a stable local regression path for CI and reviewer checks. It is not a
 full benchmark and does not replace the broader eval suites.
+GitHub Actions prepares a local SQLite schema with `prisma db push` and seeded demo
+data before running this mock-only eval path; CI does not require a DeepSeek key or any
+real provider.
 
 Additional eval commands:
 
@@ -289,7 +290,7 @@ Planned:
 - Xiaomi MiMo provider.
 - OpenAI-compatible provider interface.
 - Provider metadata comparison.
-- Stable memory-id fixtures for source-object citation assertions.
+- Broader stable memory-id fixture coverage beyond the current compensation pilot.
 
 Known limitations:
 

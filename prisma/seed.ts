@@ -130,6 +130,7 @@ async function main() {
 
   await createMemory(
     {
+      id: "mem_compensation_target_current",
       type: "Constraint",
       title: "目标总包 150w+",
       content: "目标总包 150w+。",

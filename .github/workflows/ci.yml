@@ -28,6 +28,12 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: Prepare SQLite schema
+        run: npx prisma db push
+
+      - name: Seed CI demo data
+        run: npm run seed
+
       - name: Typecheck
         run: npm run typecheck
 

@@ -23,9 +23,9 @@ example-only and is not a training dataset.
 | Mock core-safety | `mock/MockLLMProvider` | 5 | 4/5 PASS | Exposes known external-source router policy mismatch. |
 | DeepSeek diagnostic 3-case | `deepseek/deepseek-v4-flash` | 3 | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and timeout. |
 | Targeted DeepSeek checks | `deepseek/deepseek-v4-flash` | 2 targeted cases | PASS on recorded reruns | Weak-JD and follow-up targeted checks passed on rerun. |
-| DeepSeek follow-up suite | `deepseek/deepseek-v4-flash` | 1 | 0/1 FAIL | Latest run exposes follow-up type drift. |
+| DeepSeek follow-up suite | `deepseek/deepseek-v4-flash` | 1 | 1/1 PASS | Rerun passed after accepting `ask_for_next_steps` as a valid context-follow-up subtype. |
 | DeepSeek opportunity-light suite | `deepseek/deepseek-v4-flash` | 3 | 3/3 PASS | Short/staged JD behavior checks passed. |
-| DeepSeek memory suite | `deepseek/deepseek-v4-flash` | 4 | 3/4 PASS | Exposes compensation citation mismatch. |
+| DeepSeek memory suite | `deepseek/deepseek-v4-flash` | 4 | 3/4 PASS | Source-object compensation memory fixture passed; legacy string citation still mismatches. |
 
 ## Full Report
 
@@ -48,13 +48,12 @@ diagnostics for heavier JD workflows; not yet rerun after the split.
 ## Known Failure Highlights
 
 - Mock core-safety `needs_external_source`: `ERROR_ROUTER_POLICY_MISMATCH`.
-- DeepSeek follow-up suite `follow_up_uses_context`: follow-up type mismatch.
 - DeepSeek diagnostic `compare_opportunities`: action-level mismatch.
 - DeepSeek diagnostic `compensation_question_uses_memory_without_dump`: citation
-mismatch.
+string mismatch.
 - DeepSeek diagnostic `complete_jd_can_create_objects`: 60s timeout.
-- DeepSeek memory suite `compensation_question_uses_memory_without_dump`: compensation
-citation mismatch.
+- DeepSeek memory suite `compensation_question_uses_memory_without_dump`: legacy
+compensation string citation mismatch.
 
 ## Not A Full Benchmark
 

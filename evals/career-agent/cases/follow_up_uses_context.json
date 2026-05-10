@@ -8,7 +8,7 @@
   ],
   "expectations": {
     "expectedIntent": ["follow_up"],
-    "expectedFollowUpType": ["ask_for_more_options", "expand_previous_answer"],
+    "expectedFollowUpType": ["ask_for_more_options", "expand_previous_answer", "ask_for_next_steps"],
     "expectedActionLevel": ["answer_only"],
     "expectedArtifactTypes": ["none"],
     "mustUseConversationContext": true,

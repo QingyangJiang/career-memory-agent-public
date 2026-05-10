@@ -132,13 +132,16 @@ Implemented pilot fields:
 - `mustNotCiteMemoryIds`: forbid irrelevant, stale, or privacy-sensitive Memory ids.
 - `mustCiteMemoryType`: require a grounding object of a specific memory type such as
   `Preference`, `Constraint`, or `CareerGoal`.
-- `mustPreferLatestMemory`: declared in the expectation schema, but it still needs
-  stable recency metadata before it should be enabled in committed cases.
+- `mustPreferLatestMemory`: declared in the expectation schema as diagnostic-only for
+  now. It should not be used as a hard benchmark assertion until stable memory version
+  or `updatedAt` ordering metadata is available in observations.
 
 The first lightweight pilot is `compensation_question_uses_memory_without_dump`, which
-keeps the existing `mustCiteAny` string diagnostic and adds `mustCiteMemoryType:
-"Constraint"` as a transitional source-object check. Stable fixture ids are still
-needed before the suite should require concrete `mustCiteMemoryIds` values.
+keeps the existing `mustCiteAny` string diagnostic and adds both `mustCiteMemoryType:
+"Constraint"` and `mustCiteMemoryIds: ["mem_compensation_target_current"]`. The seed
+data uses that stable Memory id for the current compensation target. This is still a
+pilot: it verifies source-object grounding for one stable fixture, but it does not
+fully solve citation mismatch or latest-memory preference.
 
 Citation mismatch should continue to map to `ERROR_CITATION_MISMATCH`, but the failure
 detail should distinguish exact-string mismatch from source-object mismatch. That
@@ -149,6 +152,21 @@ This design also reduces reward hacking. If reward depends only on output string
 model can learn to repeat known phrases without using the right evidence. Source-object
 grounding rewards the agent for selecting the right auditable context object and
 avoiding forbidden ones.
+
+## Follow-up Type Granularity
+
+Follow-up behavior has two layers:
+
+- core hard invariants: the turn should be classified as `follow_up`, use recent
+  conversation context, answer naturally, and avoid creating Evidence, Opportunity,
+  Decision, Risk, OpenQuestion, or MemorySuggestion side effects;
+- semantic subtyping: labels such as `ask_for_more_options`, `expand_previous_answer`,
+  and `ask_for_next_steps` describe the shape of the follow-up.
+
+The subtype is useful diagnostic metadata, but it should not be the only hard failure
+when the core context and no-side-effect behavior is correct. The
+`follow_up_uses_context` case therefore accepts `ask_for_next_steps` as a valid subtype
+for the prompt "除此之外呢？".
 
 ## Opportunity Suite Split
 

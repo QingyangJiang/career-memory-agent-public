@@ -5,6 +5,7 @@ import { memorySnapshot, toMemoryDTO, toMemorySuggestionDTO, toMemoryVersionDTO 
 import { normalizeText } from "@/lib/utils/normalize";
 
 export interface MemoryInput {
+  id?: string;
   type: string;
   title: string;
   content: string;
@@ -62,6 +63,7 @@ export async function getMemory(id: string): Promise<MemoryDTO | null> {
 export async function createMemory(input: MemoryInput, changeReason = "Created memory"): Promise<MemoryDTO> {
   const memory = await prisma.memory.create({
     data: {
+      ...(input.id ? { id: input.id } : {}),
       type: input.type,
       title: input.title,
       content: input.content,

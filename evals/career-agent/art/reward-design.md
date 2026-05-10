@@ -109,9 +109,11 @@ result.
 The current eval harness has a lightweight source-object grounding pilot: observations
 can record citation/context ids and entity types, and the expectation schema supports
 `mustCiteMemoryIds`, `mustCiteEvidenceIds`, `mustNotCiteMemoryIds`, and
-`mustCiteMemoryType`. The compensation-memory case uses `mustCiteMemoryType` as a
-transitional check while stable memory-id fixtures remain future work. String citation
-checks are retained as diagnostics during this transition.
+`mustCiteMemoryType`. The compensation-memory case now uses the stable seed fixture
+`mem_compensation_target_current` plus `mustCiteMemoryType` as the first source-object
+grounding check. String citation checks are retained as diagnostics during this
+transition, and latest-memory preference remains planned rather than implemented as a
+component-level reward.
 
 ## Failure Taxonomy Penalties
 

@@ -28,6 +28,8 @@ board.
 - Format docs before finishing public-facing portfolio changes.
 - Keep CI on mock/local paths only; do not require `DEEPSEEK_API_KEY` for GitHub
   Actions.
+- CI must prepare a local SQLite schema with Prisma before evals. Keep seed data
+  local and deterministic for `ci-smoke`.
 - Treat `ci-smoke` as a stable regression path, not a full benchmark.
 - Keep online demo changes demo-safe: do not present the demo as production SaaS,
   auto-apply tooling, or a job board.
@@ -110,6 +112,8 @@ Hard assertions should protect critical invariants:
 
 String citation checks are still valid diagnostics. Source-object grounding is an
 incremental hardening direction, not a wholesale replacement yet.
+`mustPreferLatestMemory` is diagnostic-only until observations include stable recency
+or memory-version ordering metadata.
 
 `opportunity-light` covers short or staged JD behavior correctness. `opportunity-heavy`
 keeps long-JD latency and timeout diagnostics separate so they do not pollute the light

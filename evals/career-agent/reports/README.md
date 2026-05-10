@@ -29,6 +29,10 @@ limitations are included.
 The manifest is intended for future dashboards, CI summaries, or export tooling. It is
 not a training dataset and does not add any metrics beyond the committed public report.
 
+CI uses a local SQLite database only. The workflow creates the schema with
+`npx prisma db push`, seeds deterministic demo data with `npm run seed`, and then runs
+the mock-only `ci-smoke` regression suite. It does not require DeepSeek credentials.
+
 ## Not Claimed
 
 The current reports do not include:
