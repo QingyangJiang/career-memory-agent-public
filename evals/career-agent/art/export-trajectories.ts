@@ -47,6 +47,12 @@ interface TurnExport {
 
 interface TrajectoryRecord {
   task_id: string;
+  primary_suite: string;
+  suites: string[];
+  /**
+   * Backward-compatible alias for older consumers that expected one suite.
+   * New consumers should prefer `primary_suite` and `suites`.
+   */
   suite: string;
   provider: string;
   model: string;
@@ -141,7 +147,19 @@ const TAXONOMY_PENALTY: Record<FailureTaxonomy, number> = {
 function parseArgs() {
   const args = process.argv.slice(2);
   const has = (name: string) => args.includes(`--${name}`);
-  const get = (name: string) => args.find((arg) => arg.startsWith(`--${name}=`))?.split("=").slice(1).join("=");
+  const get = (name: string) => {
+    const inline = args
+      .find((arg) => arg.startsWith(`--${name}=`))
+      ?.split("=")
+      .slice(1)
+      .join("=");
+    if (inline) return inline;
+
+    const index = args.indexOf(`--${name}`);
+    const next = index >= 0 ? args[index + 1] : undefined;
+    return next && !next.startsWith("--") ? next : undefined;
+  };
+
   return {
     example: has("example"),
     input: get("input") ?? "evals/career-agent/report.json",
@@ -166,7 +184,9 @@ function asBoolean(value: unknown, fallback = false): boolean {
 }
 
 function asStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
 }
 
 function parseHardAssertions(value: unknown): HardAssertion[] {
@@ -216,7 +236,10 @@ function parseReport(raw: unknown): EvalReport {
           turns: turns.map((turn) => ({
             user: asString(turn.user),
             assistant: asString(turn.assistant),
-            agentRunId: typeof turn.agentRunId === "string" || turn.agentRunId === null ? turn.agentRunId : undefined,
+            agentRunId:
+              typeof turn.agentRunId === "string" || turn.agentRunId === null
+                ? turn.agentRunId
+                : undefined,
             agentStepsCount: asNumber(turn.agentStepsCount),
             createdEvidence: asBoolean(turn.createdEvidence),
             createdOpportunity: asBoolean(turn.createdOpportunity),
@@ -235,7 +258,9 @@ function parseReport(raw: unknown): EvalReport {
           hardPassRate: asNumber(judgement.hardPassRate),
           softScores: parseNumberRecord(judgement.softScores),
           averageSoftScore: asNumber(judgement.averageSoftScore),
-          errorTaxonomy: asStringArray(judgement.errorTaxonomy).filter((item): item is FailureTaxonomy => item in TAXONOMY_PENALTY)
+          errorTaxonomy: asStringArray(judgement.errorTaxonomy).filter(
+            (item): item is FailureTaxonomy => item in TAXONOMY_PENALTY
+          )
         }
       };
     })
@@ -247,8 +272,12 @@ function summarize(text: string, limit = 320): string {
   return clean.length <= limit ? clean : `${clean.slice(0, limit - 3)}...`;
 }
 
-function inferSuite(caseId: string): string {
-  return SUITE_BY_CASE[caseId]?.[0] ?? "unknown";
+function inferSuites(caseId: string): string[] {
+  return SUITE_BY_CASE[caseId] ?? ["unknown"];
+}
+
+function inferPrimarySuite(caseId: string): string {
+  return inferSuites(caseId)[0] ?? "unknown";
 }
 
 function taxonomyPenalty(taxonomy: FailureTaxonomy[]): number {
@@ -263,7 +292,13 @@ function deriveReward(result: EvalResult): number {
   return Math.max(0, Math.min(1, Number((base - taxonomyPenalty(result.judgement.errorTaxonomy)).toFixed(4))));
 }
 
-function toTrajectory(report: EvalReport, result: EvalResult): TrajectoryRecord {
+function toTrajectory(
+  report: EvalReport,
+  result: EvalResult,
+  options: { exampleOnly?: boolean } = {}
+): TrajectoryRecord {
+  const suites = inferSuites(result.case.id);
+  const primarySuite = inferPrimarySuite(result.case.id);
   const turns = result.observation.turns.map((turn) => ({
     user: turn.user,
     assistant_summary: summarize(turn.assistant),
@@ -286,12 +321,15 @@ function toTrajectory(report: EvalReport, result: EvalResult): TrajectoryRecord 
   const failed = result.judgement.hardAssertions.filter((assertion) => !assertion.passed);
   const notes = [
     "ART-ready export only; no ART dependency or training result is implied.",
+    options.exampleOnly ? "Example-only artifact; not a training dataset." : "",
     result.observation.timedOut ? "Runtime timeout should be treated as an infrastructure diagnostic by default." : "",
     result.observation.error ? `Runtime error: ${result.observation.error}` : ""
   ].filter(Boolean);
   return {
     task_id: result.case.id,
-    suite: inferSuite(result.case.id),
+    primary_suite: primarySuite,
+    suites,
+    suite: primarySuite,
     provider: result.observation.provider ?? report.provider,
     model: result.observation.model ?? report.model,
     messages,
@@ -382,7 +420,7 @@ function main() {
     throw new Error(`Eval report not found at ${options.input}. Run eval first or use --example.`);
   }
   const report = options.example ? exampleReport() : readReport(options.input);
-  const records = report.results.map((result) => toTrajectory(report, result));
+  const records = report.results.map((result) => toTrajectory(report, result, { exampleOnly: options.example }));
   writeOutput(records.map((record) => JSON.stringify(record)), options.output);
 }
 

@@ -6,6 +6,8 @@ This report records actual local eval runs. It does not include fabricated provi
 
 `evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local artifacts and are gitignored. The committed public snapshot is this file.
 
+ART trajectory exports generated from local reports are also local artifacts by default. The committed weak-JD trajectory fixture under `evals/career-agent/art/examples/` is example-only and is not a training dataset.
+
 ## Mock Smoke Result
 
 Command:

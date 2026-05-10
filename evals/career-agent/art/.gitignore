@@ -1,1 +1,3 @@
 *.jsonl
+!examples/
+!examples/*.jsonl

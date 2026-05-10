@@ -39,6 +39,12 @@ Soft scoring captures quality gradients that should improve over time:
 
 Soft scoring should never replace hard assertions for safety and correctness invariants.
 
+## ART Export Boundary
+
+The ART-ready exporter reuses eval reports as trajectory-shaped JSONL, but it does not change the eval oracle. Hard assertions, soft scores, provider metadata, and failure taxonomy remain owned by the evaluation harness.
+
+Exported trajectory files are downstream research artifacts. They should not be described as training datasets unless a real training run, reward definition, dataset version, model id, and before/after eval report exist.
+
 ## Memory Safety Cases
 
 Memory cases test whether the agent distinguishes durable user preferences from temporary discussion. Explicit preference statements should create pending `MemorySuggestion` records, not direct `Memory` writes. Temporary thoughts, ordinary chat, interview notes, Risks, OpenQuestions, and Decisions should not be suggested as durable memory unless the user clearly asks to remember them.

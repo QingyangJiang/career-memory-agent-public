@@ -22,6 +22,7 @@ Career Memory Agent already has several ingredients that map naturally to agent 
 - No GPU, vLLM, ART server, or Python training environment required for normal app usage.
 - No ART training run has been completed yet.
 - No claim that any model improved from reinforcement learning.
+- No committed trajectory artifact should be treated as a training dataset unless it is backed by a real eval report, dataset version, reward definition, and training plan.
 
 ## Mapping
 
@@ -36,6 +37,52 @@ Career Memory Agent already has several ingredients that map naturally to agent 
 | failure taxonomy | negative reward / curriculum bucket |
 | provider metadata | policy/model identity |
 | latency / timeout | infrastructure diagnostic, not model-quality reward by default |
+
+## Export Commands
+
+Dry-run example:
+
+```bash
+npm run art:export -- --example
+```
+
+The `--example` mode uses a built-in weak-JD demo case. It is example-only and is not a training dataset.
+
+Local export from a generated eval report:
+
+```bash
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+npm run art:export -- --input evals/career-agent/report.json --output evals/career-agent/art/trajectories/core-safety.jsonl
+```
+
+`evals/career-agent/report.json` and `evals/career-agent/report.md` are generated local artifacts and are ignored by Git. They record the latest local eval run and should not be described as public benchmark evidence unless the exact command, provider, date, and limitations are included.
+
+The committed example artifact at `evals/career-agent/art/examples/weak-jd.trajectory.jsonl` is produced with:
+
+```bash
+npm run art:export -- --example --output evals/career-agent/art/examples/weak-jd.trajectory.jsonl
+```
+
+That file is an example-only schema fixture, not a training dataset.
+
+## Export Schema
+
+Each JSONL record includes:
+
+| Field | Meaning |
+|---|---|
+| `task_id` | Eval case id. |
+| `primary_suite` | First suite label used as the primary grouping. |
+| `suites` | All suite labels inferred for the case. |
+| `suite` | Backward-compatible alias for `primary_suite`. |
+| `provider` / `model` | Provider identity from the observation or report. |
+| `messages` | User and summarized assistant turns. |
+| `turns` | Per-turn trace summary and created-object flags. |
+| `hard_assertion_result` | Pass flag, pass rate, and failed hard assertions. |
+| `soft_score` | Average soft score and rule-based breakdown. |
+| `failure_taxonomy` | Structured failure labels emitted by the eval oracle. |
+| `derived_scalar_reward` | Simplified heuristic reward for export inspection. |
+| `notes` | Export caveats and runtime diagnostics. |
 
 ## Phases
 

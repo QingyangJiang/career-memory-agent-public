@@ -16,6 +16,29 @@ The reward should preserve the existing behavioral oracle: hard assertions remai
 | Trace completeness reward | 0 to 1 | Assistant output links to AgentRun and AgentStep trace. |
 | Failure taxonomy penalties | negative | Penalize known failure categories such as over-automation, memory pollution, citation mismatch, router policy mismatch, and timeouts. |
 
+## Critical Gates vs Non-terminal Penalties
+
+The reward design should separate critical gate failures from non-terminal quality penalties.
+
+Critical gate failures are terminal or near-terminal for training data selection because they violate the core product contract:
+
+| Failure pattern | Severity | Why it matters |
+|---|---|---|
+| Memory pollution | Terminal | Durable memory must never be written or suggested from unsafe, temporary, or irrelevant content. |
+| Weak-JD over-creation | Near-terminal | A weak role hint should not create Evidence, Opportunity, Decision, Risk, or OpenQuestion artifacts with invented structure. |
+| Temporary-thought memory write | Terminal | Brainstorming and hesitation must remain conversation context, not long-term profile truth. |
+| Forbidden object creation | Terminal | Cases that explicitly prohibit object creation should not leave side effects. |
+
+Non-terminal penalties are useful for ranking imperfect but salvageable trajectories:
+
+| Failure pattern | Severity | Typical treatment |
+|---|---|---|
+| Missing or weak clarification | Non-terminal | Penalize and prefer responses that ask for the missing evidence. |
+| Rigid template answer | Non-terminal | Penalize style or workflow mismatch without discarding the whole trajectory. |
+| Citation mismatch | Case-dependent | Treat as severe when forbidden context is used; otherwise use as grounding penalty. |
+| Trace incompleteness | Case-dependent | Severe for trace-focused evals; otherwise a debugging and auditability penalty. |
+| Runtime timeout | Diagnostic by default | Track separately unless the timeout reflects a repeatable model or orchestration failure. |
+
 ## Draft Scalar Reward
 
 ```text
@@ -31,6 +54,8 @@ reward =
 ```
 
 The scalar should be clipped to `[0, 1]` for export. Runtime timeout should be reported as a diagnostic and may receive a penalty during eval triage, but it should not be blindly treated as a model-quality reward in training.
+
+The current TypeScript exporter does not implement the full component-level reward above. It uses a simplified scalar reward heuristic based on hard gate pass/fail, hard assertion pass rate, normalized average soft score, and taxonomy penalties. Component-level rewards remain future work and should not be reported as implemented training infrastructure.
 
 ## Failure Taxonomy Penalties
 

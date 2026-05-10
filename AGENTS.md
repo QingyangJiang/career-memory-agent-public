@@ -23,9 +23,11 @@ Do not reposition this project as a generic resume generator, auto-apply bot, or
 - Do not fabricate eval metrics or provider benchmark results.
 - Keep local-first design unless explicitly asked otherwise.
 - Keep README interviewer-friendly; move deep explanations into `docs/`.
+- Format docs before finishing public-facing portfolio changes.
 - Keep the ART bridge optional; do not add ART as a required production dependency.
-- Do not claim ART training results unless an actual run, report, and before/after eval exist.
+- Do not claim ART training results unless real training logs, model id, before/after eval, and reward definition exist.
 - Preserve eval-first positioning when discussing Agent RL or GRPO.
+- Commit ART export artifacts only when they are clearly marked as example-only fixtures.
 - Preserve memory safety: long-term `Memory` must require `MemorySuggestion` plus user confirmation.
 - Preserve evidence-before-conclusion: raw JD/interview/recruiter content should become `Evidence` before derived Opportunity/Risk/Decision.
 - Preserve chat-first UX: structured artifacts should enhance the answer, not replace it.

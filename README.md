@@ -55,9 +55,24 @@ These are targeted regression suites, not a full benchmark claim.
 
 The repository includes an optional research bridge for OpenPipe ART / Agent Reinforcement Trainer. It maps eval traces into trajectory/reward-shaped JSONL artifacts for future Agent RL / GRPO experiments, but it does not add ART as a production dependency and does not claim any training result.
 
+Dry-run example export:
+
 ```bash
 npm run art:export -- --example
 ```
+
+The `--example` flag emits a built-in demo trajectory only. It is useful for inspecting the JSONL shape without running evals, but it is not a training dataset.
+
+Example local export from a real generated eval report:
+
+```bash
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+npm run art:export -- --input evals/career-agent/report.json --output evals/career-agent/art/trajectories/core-safety.jsonl
+```
+
+`evals/career-agent/report.json` and `evals/career-agent/report.md` are local generated files written by the eval runner and ignored by Git. Exported trajectory files should be treated as local artifacts unless they are explicitly committed as example-only fixtures.
+
+Current status: no ART training run has been completed, no trained model id exists, and this repository does not claim any model-quality improvement from ART or Agent RL.
 
 See [docs/art-integration.md](docs/art-integration.md) for the research plan and [evals/career-agent/art/reward-design.md](evals/career-agent/art/reward-design.md) for the tentative reward schema.
 
