@@ -51,9 +51,20 @@ These are targeted regression suites, not a full benchmark claim.
 - **Case-driven Evaluation:** hard assertions protect behavioral invariants; soft scores track answer quality and workflow fit.
 - **Feedback-loop Engineering:** eval cases, reports, provider metadata, and failure taxonomy make model and router iteration auditable.
 
+## ART-ready Agent RL Bridge
+
+The repository includes an optional research bridge for OpenPipe ART / Agent Reinforcement Trainer. It maps eval traces into trajectory/reward-shaped JSONL artifacts for future Agent RL / GRPO experiments, but it does not add ART as a production dependency and does not claim any training result.
+
+```bash
+npm run art:export -- --example
+```
+
+See [docs/art-integration.md](docs/art-integration.md) for the research plan and [evals/career-agent/art/reward-design.md](evals/career-agent/art/reward-design.md) for the tentative reward schema.
+
 ## Documentation Map
 
 - [Evaluation design](docs/evaluation-design.md): methodology, hard assertions, soft scoring, core risks, and failure taxonomy.
+- [ART integration bridge](docs/art-integration.md): optional trajectory and reward mapping for future Agent RL / GRPO research.
 - [Interview demo script](docs/demo-script.md): 3-4 minute walkthrough for memory safety, evidence-grounded JD analysis, and follow-up resolution.
 - [MiMo integration plan](docs/mimo-integration.md): planned provider integration through the existing LLM boundary.
 - [InspectAI adapter notes](evals/career-agent/inspect/README.md): standardized dataset / solver / scorer adapter around the existing domain oracle.
