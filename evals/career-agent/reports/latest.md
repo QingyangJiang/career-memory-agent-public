@@ -6,6 +6,9 @@ This committed report is the public snapshot for the portfolio repo. It records 
 local eval runs only. It does not include fabricated provider benchmarks, cost
 estimates, or metrics that were not emitted by the harness.
 
+This public report has been privacy-sanitized with synthetic persona labels. The
+sanitization does not change the recorded metrics.
+
 `evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local
 artifacts and are gitignored. They are useful for local reproduction, but this file is
 the stable report index committed to the repository.
@@ -111,7 +114,7 @@ Provider/model: `deepseek/deepseek-v4-flash`
 | Case | Result | Failure summary |
 |---|---|---|
 | `compare_opportunities` | FAIL | Expected `actionLevel` did not match; actual was `answer_with_info_gaps`. |
-| `compensation_question_uses_memory_without_dump` | FAIL | `final: mustCiteAny` expected `目标总包 100w+`; actual citations/context included `目标总包 150w+` and other refs. |
+| `compensation_question_uses_memory_without_dump` | FAIL | `final: mustCiteAny` expected synthetic compensation memory text; actual citations/context used another synthetic compensation label and other refs. |
 | `complete_jd_can_create_objects` | FAIL | Timed out after 60,000ms before producing turns. |
 
 Failure taxonomy:
@@ -162,9 +165,10 @@ Provider/model: `deepseek/deepseek-v4-flash`
 Known failure:
 
 - `compensation_question_uses_memory_without_dump`: `ERROR_CITATION_MISMATCH` from the
-legacy string check; expected citation/context containing `目标总包 100w+`, actual
-context cited `目标总包 150w+`.
-- The source-object fixture assertion for `mem_compensation_target_current` passed in
+legacy string check on synthetic compensation memory; expected citation/context
+containing `目标薪酬区间：Demo Band A`, actual context cited another synthetic
+compensation label.
+- The source-object fixture assertion for `mem_demo_compensation_target_current` passed in
 this run, so the remaining failure is not a missing Memory id citation.
 
 ## DeepSeek Follow-up Suite
@@ -221,7 +225,7 @@ Provider/model: `deepseek/deepseek-v4-flash`
 |---|---|---|
 | Mock core-safety | `needs_external_source` | `ERROR_ROUTER_POLICY_MISMATCH`; expected `evidenceSufficiency=none`, actual was `partial`. |
 | DeepSeek diagnostic | `compare_opportunities` | Action-level mismatch; actual was `answer_with_info_gaps`. |
-| DeepSeek diagnostic | `compensation_question_uses_memory_without_dump` | Legacy string citation mismatch; expected `目标总包 100w+`, actual context included `目标总包 150w+` and other refs. |
+| DeepSeek diagnostic | `compensation_question_uses_memory_without_dump` | Legacy string citation mismatch on synthetic compensation memory. |
 | DeepSeek diagnostic | `complete_jd_can_create_objects` | Runtime timeout after 60,000ms. |
 | DeepSeek memory suite | `compensation_question_uses_memory_without_dump` | Compensation citation mismatch. |
 

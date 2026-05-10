@@ -43,8 +43,9 @@ const analyzeSignals = [
   "任职要求",
   "jd",
   "薪资",
+  "薪酬",
   "base",
-  "15薪",
+  "Demo Band",
   "grpo",
   "rlhf",
   "rlvr",
@@ -103,14 +104,14 @@ const followUpSignals = [
   "该干嘛",
   "然后呢"
 ];
-const knownCompanySignals = ["字节", "豆包", "淘天", "蚂蚁", "同花顺", "快手", "美团", "腾讯", "百度", "小红书", "MiniMax", "月之暗面", "智谱", "阶跃星辰", "商汤"];
-const knownDirectionSignals = ["Agent 后训练", "Agentic RL", "RL", "GRPO", "Reward Model", "Verifier", "教育", "K12", "评测", "数据闭环", "搜索推荐", "广告算法"];
+const knownCompanySignals = ["星桥智能学习实验室", "StellarBridge", "Aurora Tutor Agent", "RubricFlow", "StepProof", "TextSnap", "ChainGraph"];
+const knownDirectionSignals = ["Reliable Agent", "Agent 后训练", "Post-training", "RL", "GRPO", "Reward Model", "Verifier", "评测", "数据闭环", "Tool-use Eval"];
 const jobDescriptionFieldSignals = ["岗位名称", "所属部门", "工作地点", "薪资范围", "岗位职责", "任职要求", "职位描述", "工作内容", "任职资格"];
 const clarifyExamples = [
   "1. 帮我分析这段 JD 是否适合我；",
-  "2. 同花顺和淘天哪个更适合我；",
-  "3. 帮我准备淘天交叉面；",
-  "4. 我以后想优先看 Agentic RL 岗位，帮我生成记忆建议。"
+  "2. Aurora Tutor Agent 和 ChainGraph Tool Agent 哪个更适合我；",
+  "3. 帮我准备星桥智能学习实验室的交叉面；",
+  "4. 我以后想优先看 Reliable Agent 岗位，帮我生成记忆建议。"
 ];
 
 const durableMemorySignals = [
@@ -128,10 +129,10 @@ const durableMemorySignals = [
 ];
 
 const jobMissingFieldChecks: Array<[string, string[]]> = [
-  ["公司/业务线", ["公司", "字节", "阿里", "腾讯", "百度", "美团", "同花顺", "淘天", "豆包", "团队"]],
+  ["公司/业务线", ["公司", "星桥", "StellarBridge", "Aurora", "RubricFlow", "StepProof", "TextSnap", "ChainGraph", "团队"]],
   ["岗位职责占比", ["岗位职责", "职责", "负责", "工作内容"]],
   ["任职要求", ["任职要求", "要求", "经验", "熟悉", "能力"]],
-  ["薪资/职级", ["薪资", "薪酬", "base", "总包", "职级", "k", "薪"]],
+  ["薪资/职级", ["薪资", "薪酬", "目标薪酬区间", "Demo Band", "base", "bonus", "职级"]],
   ["团队和 owner 空间", ["owner", "闭环", "团队", "汇报", "负责人", "决策权"]]
 ];
 
@@ -221,7 +222,7 @@ function jobEvidenceSufficiency(input: string): { evidenceSufficiency: EvidenceS
   const signalHits = jobMissingFieldChecks.length - missingFields.length;
   const hasRoleWork = ["岗位职责", "负责", "工作内容"].some((signal) => compact.includes(normalizeText(signal)));
   const hasRequirements = ["任职要求", "要求", "熟悉", "经验"].some((signal) => compact.includes(normalizeText(signal)));
-  const hasComp = ["薪资", "薪酬", "base", "总包", "k", "薪"].some((signal) => compact.includes(normalizeText(signal)));
+  const hasComp = ["薪资", "薪酬", "目标薪酬区间", "Demo Band", "base", "bonus"].some((signal) => compact.includes(normalizeText(signal)));
   const hasTeamOrBusiness = ["团队", "业务", "场景", "公司"].some((signal) => compact.includes(normalizeText(signal)));
   if ((input.length > 80 && hasRoleWork && hasRequirements && hasComp && hasTeamOrBusiness) || (input.length > 180 && signalHits >= 4)) {
     return { evidenceSufficiency: "sufficient", missingFields };
@@ -1320,7 +1321,7 @@ async function createJobDescriptionDraftObjects(agentRunId: string, input: strin
       compensationMatchScore: draft.salaryRange ? (isEcommerceOps ? 35 : 60) : 50,
       ownerSpaceScore: isEcommerceOps ? 30 : 55,
       summary: isEcommerceOps
-        ? "该 JD 是电商运营执行岗位，和用户优先关注的 Agentic RL、后训练、Reward Model、Verifier 方向匹配度较低。"
+        ? "该 JD 是电商运营执行岗位，和用户优先关注的 Reliable Agent、后训练、Reward Model、Verifier 方向匹配度较低。"
         : "已基于当前 JD 创建轻量岗位分析草稿。",
       strongMatchesJson: stringifyJson(isEcommerceOps ? ["JD 信息完整，便于判断不匹配点。"] : ["当前 JD 信息较完整。"]),
       weakMatchesJson: stringifyJson(isEcommerceOps ? ["核心职责偏商品/活动/店铺运营，不是算法或后训练岗位。", "薪资 6k-10k 与高优先级技术岗位目标可能不匹配。"] : [])
@@ -1367,7 +1368,7 @@ async function createJobDescriptionDraftObjects(agentRunId: string, input: strin
       decision: isEcommerceOps ? "pause" : "maybe",
       confidence: isEcommerceOps ? "high" : "medium",
       rationale: isEcommerceOps
-        ? "当前 JD 和用户长期偏好的 Agentic RL、后训练、Reward Model、Verifier 方向不匹配，除非只是短期过渡或岗位背后有 AI/数据智能 owner 空间，否则不建议优先推进。"
+        ? "当前 JD 和用户长期偏好的 Reliable Agent、后训练、Reward Model、Verifier 方向不匹配，除非只是短期过渡或岗位背后有 AI/数据智能 owner 空间，否则不建议优先推进。"
         : "当前 JD 信息较完整，可以作为机会草稿继续确认关键缺口。",
       evidenceIdsJson: stringifyJson([evidence.id])
     }
@@ -1422,7 +1423,7 @@ function composeGroundedJobDescriptionAnswer(input: string, objects: RouterCreat
     ? `这个岗位我不建议你优先推进。它是典型的${role}，核心工作是${coreWork}${salary}。`
     : `${role} 可以进入进一步评估，我已经按当前 JD 做了机会草稿。`;
   const fit = isEcommerceOps
-    ? "和你当前优先关注的 Agentic RL、后训练、Reward Model、Verifier、大模型应用效果闭环相比，这个岗位匹配度很低。它更偏运营执行，不是算法、后训练、Agent 或大模型应用效果优化岗位。"
+    ? "和你当前优先关注的 Reliable Agent、后训练、Reward Model、Verifier、大模型应用效果闭环相比，这个岗位匹配度很低。它更偏运营执行，不是算法、后训练、Agent 或大模型应用效果优化岗位。"
     : "我会先按当前 JD 本身判断，再用长期记忆做个性化匹配，不会让历史话题替代这次输入。";
   const caveat = isEcommerceOps
     ? "除非你只是短期过渡，或者这个岗位背后实际有 AI Agent / 数据智能运营 / 自动化运营 owner 空间，否则不建议投入太多面试精力。"
@@ -1503,15 +1504,15 @@ function composeFollowUpAnswer(input: string, classification: RouterClassificati
 
   if (followUpType === "ask_for_more_options") {
     const extraCompanies = withoutAlreadyMentioned(
-      ["快手", "美团", "腾讯混元", "百度智能云/文心", "小红书", "MiniMax", "月之暗面", "智谱", "阶跃星辰"],
+      ["Aurora Tutor Agent", "RubricFlow Writing Evaluator", "StepProof Math Verifier", "TextSnap Retrieval Ranker", "ChainGraph Tool Agent"],
       companies
     ).slice(0, 6);
     answer =
       `可以，除了刚才那组之外，我会把备选分成两类看：\n\n` +
-      `1. **大厂业务型 Agent/RL 机会**：${extraCompanies.slice(0, 4).join("、")}。这类更适合你验证业务闭环、owner 空间和真实指标。\n` +
-      `2. **模型应用/评测型团队**：${extraCompanies.slice(4).join("、") || "垂直教育 Agent、企业 Agent、评测/Verifier 平台团队"}。这类不一定 title 最亮，但可能更接近 GRPO、Reward Model、Verifier 和数据闭环。\n\n` +
+      `1. **Synthetic Agent/RL 机会**：${extraCompanies.slice(0, 4).join("、")}。这类更适合验证业务闭环、owner 空间和可靠性指标。\n` +
+      `2. **模型应用/评测型团队**：${extraCompanies.slice(4).join("、") || "Reliable Tutor Agent、Tool Agent、评测/Verifier 平台团队"}。这类不一定 title 最亮，但可能更接近 GRPO、Reward Model、Verifier 和数据闭环。\n\n` +
       `我建议先按“是否有后训练/RL 实战、是否有业务闭环、是否能拿到 owner”筛一遍，不要只按公司名筛。`;
-    nextActions = ["补一版你当前候选公司清单。", "标出你更看重总包、方向还是平台。", "优先找 JD 里明确写 GRPO/RLHF/Reward/Verifier 的岗位。"];
+    nextActions = ["补一版 synthetic 候选机会清单。", "标出你更看重目标薪酬区间、方向还是平台。", "优先找 JD 里明确写 GRPO/RLHF/Reward/Verifier 的岗位。"];
   } else if (followUpType === "compare_with_previous") {
     const pair = companies.length >= 2 ? companies.slice(0, 2).join(" vs ") : "上一轮提到的两个机会";
     answer =
@@ -1528,22 +1529,22 @@ function composeFollowUpAnswer(input: string, classification: RouterClassificati
       `具体要确认三件事：第一，后训练/RL/评测是不是核心工作，而不是边缘支持；第二，团队有没有真实业务指标和数据闭环；第三，你进去后有没有 owner 空间，而不是只接需求做优化。\n\n` +
       `所以不是不能看，而是要在继续推进前把岗位边界问清楚。`;
     nextActions = ["问清核心指标和职责占比。", "确认团队业务和汇报线。", "确认是否有 GRPO/Reward/Verifier 实战空间。"];
-  } else if (/教育/.test(input) || directions.some((direction) => /教育|K12/i.test(direction))) {
+  } else if (/Reliable Tutor|Tutor Agent|教学/i.test(input) || directions.some((direction) => /Reliable Tutor|Tutor Agent|教学/i.test(direction))) {
     answer =
-      `如果限定在教育方向，我会更偏向看 **教育 Agent + 后训练/RL + 评测闭环** 的岗位，而不是纯内容运营或泛应用开发。\n\n` +
-      `你可以重点找三类：一是 K12/学习助手里的 Agent 规划与反馈优化；二是题目讲解、批改、答疑场景里的 Reward Model / Verifier；三是教育场景评测体系和数据闭环。这个方向的优势是业务反馈比较具体，容易讲清楚“模型优化如何影响学习效果”。\n\n` +
-      `需要警惕的是，很多教育 Agent 岗位会把算法、产品策略和内容规则混在一起，投之前要确认算法 owner 空间。`;
-    nextActions = ["筛 JD 是否包含评测闭环。", "确认是否有线上学习效果指标。", "确认算法职责占比。"];
+      `如果限定在 Reliable Tutor Agent 方向，我会更偏向看 **Tutor Agent + 后训练/RL + 评测闭环** 的岗位，而不是纯内容运营或泛应用开发。\n\n` +
+      `你可以重点找三类：一是 Aurora Tutor Agent 这类互动讲解与反馈优化；二是 RubricFlow / StepProof 这类 Reward Model / Verifier 场景；三是评测体系和数据闭环团队。这个方向的优势是反馈比较具体，容易讲清楚“模型优化如何影响学习效果”。\n\n` +
+      `需要警惕的是，很多 Tutor Agent 岗位会把算法、产品策略和内容规则混在一起，投之前要确认算法 owner 空间。`;
+    nextActions = ["筛 JD 是否包含评测闭环。", "确认是否有线上效果指标。", "确认算法职责占比。"];
   } else if (followUpType === "ask_for_next_steps") {
     answer =
       `下一步我建议别急着下结论，先把上一轮缺口补齐到能判断的程度。\n\n` +
       `你可以按这个顺序做：\n\n` +
       `1. 要完整 JD 或岗位描述，确认 GRPO / Reward Model 是核心职责还是加分项。\n` +
-      `2. 问公司、团队、业务场景、汇报线和前三个月指标。\n` +
-      `3. 问薪资/职级范围，以及是否有 owner 空间。\n` +
+      `2. 问公司/业务线、团队、业务场景、汇报线和前三个月指标。\n` +
+      `3. 问目标薪酬区间、职级范围，以及是否有 owner 空间。\n` +
       `4. 如果对方愿意聊，再把 JD 发我，我可以帮你判断是否值得正式推进。\n\n` +
       `在信息不够时，我会把它当线索跟进，不创建正式 Opportunity。`;
-    nextActions = ["补完整 JD。", "确认公司/团队/薪资。", "确认 owner 空间和职责占比。"];
+    nextActions = ["补完整 JD。", "确认公司/团队/目标薪酬区间。", "确认 owner 空间和职责占比。"];
   } else {
     answer =
       `我理解你是在接着问 **${topic}**。基于上一轮内容，我会继续沿着刚才的对象和方向展开，而不是把这句话当成一个新问题。\n\n` +
@@ -1570,8 +1571,8 @@ function composeFollowUpAnswer(input: string, classification: RouterClassificati
 
 function composeMemoryCandidateAnswer(suggestions: MemorySuggestionDTO[]) {
   const countText = suggestions.length ? `我抓到了 ${suggestions.length} 条可能值得保存的记忆候选。` : "我理解了，这更像是一个偏好更新。";
-  const preferenceText = suggestions.some((item) => /Agentic RL|后训练|Reward|Verifier|纯预训练/.test(`${item.title} ${item.content}`))
-    ? "明白，这会作为后续岗位筛选的重要标准：我会优先帮你看 Agentic RL、后训练、Reward Model、Verifier、真实业务闭环相关机会；纯预训练岗位默认不作为优先方向。\n\n"
+  const preferenceText = suggestions.some((item) => /Reliable Agent|Reliable Agent|后训练|Reward|Verifier|纯预训练/.test(`${item.title} ${item.content}`))
+    ? "明白，这会作为后续岗位筛选的重要标准：我会优先帮你看 Reliable Agent、后训练、Reward Model、Verifier、真实业务闭环相关机会；纯预训练岗位默认不作为优先方向。\n\n"
     : "";
   return {
     mode: "answer" as const,
@@ -1599,13 +1600,13 @@ function composeComparisonAnswer(input: string) {
   return {
     mode: "answer" as const,
     answer:
-      `可以，我们先看${targetText}哪个更适合你。我会按你已有的职业偏好来判断：如果一个机会更贴近 Agentic RL、后训练、真实业务闭环和 owner 空间，它通常会更值得优先看；如果只是平台名更大但工作内容偏执行或纯预训练，就不一定适合你。\n\n` +
-      `具体到${targetText}，我会先比较方向匹配、owner 空间、薪资确定性、团队质量和面试/入职风险。现在我不会新建 Opportunity，因为你还没有提供新的 JD 或面试证据。`,
+      `可以，我们先看${targetText}哪个更适合你。我会按你已有的职业偏好来判断：如果一个机会更贴近 Reliable Agent、后训练、真实业务闭环和 owner 空间，它通常会更值得优先看；如果只是平台名更大但工作内容偏执行或纯预训练，就不一定适合你。\n\n` +
+      `具体到${targetText}，我会先比较方向匹配、owner 空间、目标薪酬区间、团队质量和面试/入职风险。现在我不会新建 Opportunity，因为你还没有提供新的 JD 或面试证据。`,
     sections: {
       conclusion: "先按方向匹配和 owner 空间比较，不创建新机会。",
       evidence: [input],
-      risks: ["如果缺少两边 JD、团队和薪资细节，结论只能是初步排序。"],
-      nextActions: ["补充两个机会的 JD 或关键差异。", "说明你这轮最看重薪资、成长、方向还是稳定性。"],
+      risks: ["如果缺少两边 JD、团队和目标薪酬区间细节，结论只能是初步排序。"],
+      nextActions: ["补充两个机会的 JD 或关键差异。", "说明你这轮最看重目标薪酬区间、成长、方向还是稳定性。"],
       citationSummary: []
     },
     citations: []
@@ -1616,13 +1617,13 @@ function composeInterviewPrepAnswer(input: string) {
   return {
     mode: "answer" as const,
     answer:
-      "可以。交叉面我建议你把重点放在三件事：先讲清楚你做过的 Agent / 后训练相关闭环，再证明你能把问题拆成数据、训练、评测和上线反馈，最后准备好对业务指标和团队协作的追问。\n\n" +
+      "可以。交叉面我建议你把重点放在三件事：先讲清楚 synthetic project 里的 Agent / 后训练相关闭环，再证明你能把问题拆成数据、训练、评测和上线反馈，最后准备好对业务指标和团队协作的追问。\n\n" +
       "你可以准备 2 个项目故事：一个讲复杂 Agent 系统如何发现问题和迭代，一个讲评测/Reward/Verifier 怎么帮助提升效果。回答时少堆术语，多讲你怎么定位问题、做取舍、验证收益。",
     sections: {
       conclusion: "围绕项目闭环、评测体系和业务指标准备交叉面。",
       evidence: [input],
       risks: ["如果不知道面试官方向，需要准备算法、系统和业务三种追问路径。"],
-      nextActions: ["准备 2 个项目故事。", "列出 5 个反问。", "把薪资/团队/owner 空间问题留到合适阶段确认。"],
+      nextActions: ["准备 2 个 synthetic project 故事。", "列出 5 个反问。", "把目标薪酬区间/团队/owner 空间问题留到合适阶段确认。"],
       citationSummary: []
     },
     citations: []
@@ -1633,9 +1634,9 @@ function composeResumeProjectRewriteAnswer(input: string): CareerAskResponse {
   const answer =
     "可以。我会把这个项目从“做了一个功能/系统”改成更贴近 **Agent 后训练岗位** 的表达，重点突出：问题定义、数据闭环、Reward/Verifier、评测指标和上线收益。\n\n" +
     "你可以这样写：\n\n" +
-    "> 负责高英评批场景中的 Agent 反馈优化与评测闭环建设，围绕学生作答质量、批改一致性和讲解可用性设计数据采样、错误归因与验证流程。结合规则评测、人工标注和模型反馈构建 reward / verifier 信号，用于定位模型在推理、事实性和教学表达上的薄弱点，并推动后训练迭代。\n\n" +
+    "> 负责 RubricFlow Writing Evaluator 中的 Agent 反馈优化与评测闭环建设，围绕写作质量、rubric 一致性和反馈可用性设计数据采样、错误归因与验证流程。结合规则评测、人工标注和模型反馈构建 reward / verifier 信号，用于定位模型在推理、事实性和教学表达上的薄弱点，并推动后训练迭代。\n\n" +
     "如果要更像简历 bullet，可以压成三条：\n\n" +
-    "- 构建高英评批 Agent 的评测与反馈闭环，覆盖作答理解、批改一致性、讲解质量等核心指标。\n" +
+    "- 构建 RubricFlow Writing Evaluator 的评测与反馈闭环，覆盖作答理解、rubric 一致性、讲解质量等核心指标。\n" +
     "- 设计错误归因和 verifier/reward 信号，将线上 badcase 转化为可训练、可评测的数据资产。\n" +
     "- 推动模型后训练迭代，提升教育场景下反馈准确性、稳定性和可解释性。\n\n" +
     "这里先不把它保存为长期记忆；如果你确认这是稳定项目事实，可以再点保存为 ProjectClaim。";
@@ -1718,12 +1719,12 @@ async function suggestMemoryUpdatesFromInput(agentRunId: string, input: string):
   const drafts: Array<{ suggestedType: string; title: string; content: string; tags: string[]; confidence: number; reason: string }> = [];
   const clean = input.replace(/\s+/g, " ").trim();
   const title = clean.length > 34 ? `${clean.slice(0, 34)}...` : clean;
-  const hasAgenticRlPreference = hasAny(clean, ["Agentic RL", "后训练", "Reward Model", "Verifier"]);
+  const hasAgenticRlPreference = hasAny(clean, ["Reliable Agent", "后训练", "Reward Model", "Verifier"]);
   if (hasAgenticRlPreference && hasAny(clean, ["优先", "优先看", "优先考虑"])) {
     drafts.push({
       suggestedType: "Preference",
-      title: "优先看 Agentic RL / 后训练 / Reward-Verifier 相关岗位",
-      content: "用户后续岗位筛选中优先关注 Agentic RL、后训练、Reward Model、Verifier 等方向。",
+      title: "优先看 Reliable Agent / 后训练 / Reward-Verifier 相关岗位",
+      content: "用户后续岗位筛选中优先关注 Reliable Agent、后训练、Reward Model、Verifier 等方向。",
       tags: ["user-stated", "preference", "agentic-rl", "post-training"],
       confidence: 0.9,
       reason: "用户明确表达了长期岗位方向偏好；保存前需要用户确认。"
@@ -1759,7 +1760,7 @@ async function suggestMemoryUpdatesFromInput(agentRunId: string, input: string):
       reason: "用户明确表达了筛选约束；保存前需要用户确认。"
     });
   }
-  if (hasAny(clean, ["目标", "总包", "成为"])) {
+  if (hasAny(clean, ["目标", "目标薪酬区间", "Demo Band", "成为"])) {
     drafts.push({
       suggestedType: "CareerGoal",
       title: title || "职业目标",
@@ -1933,7 +1934,7 @@ export class CareerAgentRouter {
         answer = {
           mode: "clarify",
           answer:
-            "我现在缺少外部来源，不能替你实时查找或抓取 JD。请粘贴豆包 JD 原文、招聘链接中的岗位内容，或提供猎头/HR 消息后，我可以继续做 Evidence 分析。",
+            "我现在缺少外部来源，不能替你实时查找或抓取 JD。请粘贴星桥智能学习实验室 JD 原文、招聘链接中的岗位内容，或提供猎头/HR 消息后，我可以继续做 Evidence 分析。",
           sections: {
             conclusion: "缺少外部来源，当前不会创建 Evidence、Opportunity 或其他结构化对象。",
             evidence: ["该请求需要外部 JD 来源；当前 MockLLMProvider 不联网。"],

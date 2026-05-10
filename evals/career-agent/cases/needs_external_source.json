@@ -2,7 +2,7 @@
   "id": "needs_external_source",
   "title": "外部 JD 搜索请求不创建对象",
   "provider": "deepseek-flash",
-  "turns": [{ "user": "帮我找下豆包的 JD。" }],
+  "turns": [{ "user": "帮我找下星桥智能学习实验室的 JD。" }],
   "expectations": {
     "expectedActionLevel": ["answer_with_info_gaps"],
     "expectedEvidenceSufficiency": ["none"],

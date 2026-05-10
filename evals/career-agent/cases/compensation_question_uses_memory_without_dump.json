@@ -17,11 +17,11 @@
     "maxRisks": 0,
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
-    "mustCiteAny": ["目标总包 100w+"],
-    "mustCiteMemoryIds": ["mem_compensation_target_current"],
+    "mustCiteAny": ["Demo Band A", "目标薪酬区间"],
+    "mustCiteMemoryIds": ["mem_demo_compensation_target_current"],
     "mustCiteMemoryType": "Constraint",
-    "mustNotCite": ["Agent", "后训练", "GRPO", "Reward", "Verifier", "K12", "高英评批", "初中数学"],
-    "mustMentionAny": ["HR", "期望薪资", "总包", "base", "年终", "股票", "100w"],
-    "mustNotMention": ["Agentic RL", "GRPO", "Reward Model", "Verifier", "纯预训练", "已创建 Opportunity", "MemorySuggestion"]
+    "mustNotCite": ["Aurora Tutor Agent", "RubricFlow", "StepProof", "ChainGraph"],
+    "mustMentionAny": ["HR", "期望薪资", "Demo Band A", "base", "bonus", "可谈判"],
+    "mustNotMention": ["Reliable Agent", "GRPO", "Reward Model", "Verifier", "纯预训练", "已创建 Opportunity", "MemorySuggestion"]
   }
 }

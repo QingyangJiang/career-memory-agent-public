@@ -32,9 +32,9 @@ const modeLabels: Array<{ value: CareerAgentMode; label: string }> = [
 
 const emptyChatStarters = [
   { label: "Analyze a JD", prompt: "帮我分析这段 JD 是否适合我：" },
-  { label: "Compare two opportunities", prompt: "同花顺和淘天哪个更适合我？" },
-  { label: "Update career memory", prompt: "我以后想优先看 Agentic RL 岗位，帮我生成记忆建议。" },
-  { label: "Prepare an interview", prompt: "帮我准备淘天交叉面。" }
+  { label: "Compare two opportunities", prompt: "Aurora Tutor Agent 和 ChainGraph Tool Agent 哪个更适合我？" },
+  { label: "Update career memory", prompt: "我以后想优先看 Reliable Agent 岗位，帮我生成记忆建议。" },
+  { label: "Prepare an interview", prompt: "帮我准备星桥智能学习实验室的交叉面。" }
 ];
 
 const providerOptions: Array<{

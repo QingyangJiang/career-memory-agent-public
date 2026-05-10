@@ -48,9 +48,10 @@ const SIGNALS = [
   "闭环",
   "业务",
   "落地",
-  "k12",
+  "Reliable Tutor",
   "薪资",
-  "总包",
+  "薪酬",
+  "Demo Band",
   "风险",
   "面试",
   "问题",
@@ -58,7 +59,7 @@ const SIGNALS = [
 ];
 
 const SEMANTIC_SIGNAL_GROUPS = [
-  ["薪资", "薪酬", "总包", "base", "年终", "股票", "期权", "预算", "offer"],
+  ["薪资", "薪酬", "目标薪酬区间", "Demo Band", "base", "bonus", "equity-like incentive", "预算", "offer"],
   ["面试", "一面", "二面", "终面", "交叉面", "反问"],
   ["owner", "负责人", "闭环", "业务指标", "落地"],
   ["agent", "后训练", "rl", "grpo", "ppo", "rlhf", "rlvr", "reward", "verifier", "judge", "评测"]

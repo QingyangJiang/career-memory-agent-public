@@ -18,7 +18,7 @@
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
     "mustCiteAny": ["Agent", "后训练", "短期目标", "长期目标"],
-    "mustNotCite": ["目标总包", "100w"],
+    "mustNotCite": ["目标薪酬区间", "Demo Band A"],
     "mustMentionAny": ["Agent", "后训练", "纯预训练", "优先", "业务闭环", "owner"],
     "mustNotMention": ["已创建 Opportunity", "MemorySuggestion", "薪资"]
   }

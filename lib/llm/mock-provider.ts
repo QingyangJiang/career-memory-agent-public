@@ -39,7 +39,7 @@ const MEMORY_KEYWORDS: Record<string, string[]> = {
   "后训练 / RL": ["grpo", "ppo", "dpo", "rlhf", "rlvr", "sft", "后训练"],
   "Reward / Verifier": ["reward", "verifier", "prm", "judge", "rubric", "guardrail", "评分"],
   "评测与数据闭环": ["评测", "闭环", "badcase", "数据配方", "灰度", "效果"],
-  "真实业务落地": ["业务", "落地", "学习机", "k12", "线上"]
+  "真实业务落地": ["业务", "落地", "Reliable Tutor", "线上"]
 };
 
 function contains(text: string, keyword: string) {
@@ -330,8 +330,8 @@ export class MockLLMProvider implements LLMProvider {
 
     if (assessment.compensationMatchScore < 80) {
       risks.push({
-        title: "薪资与目标总包可能不稳",
-        description: `当前薪资信息为 ${opportunity.salaryRange ?? "未明确"}，与目标总包 100w+ 的匹配仍依赖职级、绩效和股票/奖金口径。`,
+        title: "薪酬区间与目标约束可能不稳",
+        description: `当前薪酬信息为 ${opportunity.salaryRange ?? "未明确"}，与 Demo Band A 的匹配仍依赖职级、bonus 和 equity-like incentive 口径。`,
         severity: "medium",
         likelihood: "unknown",
         mitigation: "尽早确认 base、年终、签字费、股票、绩效系数和保底情况。",

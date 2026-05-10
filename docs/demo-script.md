@@ -13,7 +13,7 @@ Use this framing:
 Paste:
 
 ```text
-以后我优先看 Agentic RL / Post-training / Evaluation 岗位，纯预训练暂不作为主线。
+以后我优先看 Reliable Agent / Post-training / Evaluation 岗位，纯预训练暂不作为主线。
 ```
 
 Expected behavior:
@@ -43,9 +43,9 @@ Paste a reasonably complete JD, for example:
 ```text
 帮我分析这个 JD 是否值得推进：
 
-公司：某 AI Infra 创业公司
-岗位：Agent Post-training / Evaluation Engineer
-团队：模型应用与评测平台团队，12 人左右
+公司：星桥智能学习实验室
+岗位：Reliable Agent Post-training / Evaluation Engineer
+团队：Reliable Tutor Agent 后训练团队
 职责：
 1. 设计 Agent 任务评测集和自动化评测 harness；
 2. 搭建 reward model / preference data 反馈闭环；
@@ -56,8 +56,8 @@ Paste a reasonably complete JD, for example:
 2. 有 TypeScript 或 Python 工程经验；
 3. 理解 RLHF / DPO / GRPO / reward modeling 基本概念；
 4. 能把用户反馈转成可复现 eval case。
-薪资：base 60-80k，15 薪，有期权
-汇报线：Head of AI Platform
+薪资：Demo Band A，结构包含 base / bonus / equity-like incentive
+汇报线：Demo AI Platform Lead
 ```
 
 Expected behavior:

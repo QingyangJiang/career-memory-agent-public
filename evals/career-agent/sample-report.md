@@ -7,6 +7,9 @@ This file is the committed public snapshot index. The full structured report liv
 Machine-readable metadata for the same snapshot lives in
 [reports/latest.manifest.json](reports/latest.manifest.json).
 
+This public snapshot has been privacy-sanitized with synthetic persona labels. The
+sanitization does not change the recorded metrics.
+
 `evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local
 artifacts and are gitignored. They are useful for local reproduction, but they should
 not be treated as stable public benchmark files.

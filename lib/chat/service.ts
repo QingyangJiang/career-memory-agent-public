@@ -38,14 +38,17 @@ const CONTEXT_SIGNALS = [
   "闭环",
   "面试",
   "交叉面",
-  "淘天",
-  "同花顺",
-  "豆包",
-  "字节"
+  "星桥",
+  "StellarBridge",
+  "Aurora",
+  "RubricFlow",
+  "StepProof",
+  "TextSnap",
+  "ChainGraph"
 ];
 
 const SEMANTIC_CONTEXT_GROUPS = [
-  ["薪资", "薪酬", "总包", "base", "年终", "股票", "期权", "预算", "offer"],
+  ["薪资", "薪酬", "目标薪酬区间", "Demo Band", "base", "bonus", "equity-like incentive", "预算", "offer"],
   ["面试", "一面", "二面", "终面", "交叉面", "反问"],
   ["owner", "负责人", "闭环", "业务指标", "落地"],
   ["agent", "后训练", "rl", "grpo", "ppo", "rlhf", "rlvr", "reward", "verifier", "judge", "评测"]
@@ -246,8 +249,8 @@ function providerRuntimeFromSteps(steps: ChatSendResult["result"]["agentRun"]["s
   };
 }
 
-const COMPANY_CONTEXT_SIGNALS = ["字节", "豆包", "淘天", "蚂蚁", "同花顺", "快手", "美团", "腾讯", "百度", "小红书", "MiniMax", "月之暗面", "智谱", "阶跃星辰", "商汤"];
-const ROLE_CONTEXT_SIGNALS = ["Agent", "后训练", "RL", "GRPO", "PPO", "RLHF", "Reward Model", "Verifier", "评测", "数据闭环", "教育", "K12", "交叉面"];
+const COMPANY_CONTEXT_SIGNALS = ["星桥智能学习实验室", "StellarBridge", "Aurora Tutor Agent", "RubricFlow", "StepProof", "TextSnap", "ChainGraph"];
+const ROLE_CONTEXT_SIGNALS = ["Agent", "后训练", "RL", "GRPO", "PPO", "RLHF", "Reward Model", "Verifier", "评测", "数据闭环", "Reliable Tutor", "交叉面"];
 
 function uniqueSignals(text: string, signals: string[]) {
   const lower = text.toLowerCase();

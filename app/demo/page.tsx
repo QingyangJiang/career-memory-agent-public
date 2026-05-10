@@ -1,7 +1,7 @@
 import { DemoScenarioCard } from "@/components/demo/DemoScenarioCard";
 
 const opportunityPrompt =
-  "完整 JD：公司/业务线：豆包教育业务线；团队和 owner 空间：教育 Agent 后训练团队，岗位需要负责从数据、评测到线上效果的闭环优化；岗位职责：负责 GRPO、Reward Model、评测体系和数据闭环；任职要求：熟悉 PPO/GRPO/DPO，有线上 Agent 优化经验；薪资/职级：70k-90k，15 薪。请判断是否值得进入正式 Opportunity 分析。";
+  "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；职责：负责 GRPO、Reward Model、评测体系、数据闭环和 AgentRun trace 分析；要求：熟悉 PPO / GRPO / DPO，有 Agent 应用上线经验；薪资/职级：Demo Band A，结构包含 base / bonus / equity-like incentive。请判断是否值得进入正式 Opportunity 分析。";
 
 export default function DemoPage() {
   return (
@@ -20,6 +20,10 @@ export default function DemoPage() {
           unless DeepSeek is explicitly enabled in a controlled deployment. Do not
           enter private personal information.
         </p>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          All demo memories, opportunities, and reports use synthetic persona data for
+          林澈 / Lin Che.
+        </p>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2">
@@ -27,13 +31,13 @@ export default function DemoPage() {
           title="Memory Safety Demo"
           goal="Expected behavior: generate pending MemorySuggestion records, but do not write durable Memory directly."
           inspect={["Pending MemorySuggestion records", "No direct durable Memory write"]}
-          prompt="以后我优先看 Agentic RL / Post-training / Evaluation 岗位，纯预训练暂不作为主线。"
+          prompt="以后我优先看 Reliable Agent / Post-training / Evaluation 岗位，纯预训练暂不作为主线。"
         />
         <DemoScenarioCard
           title="Weak JD Guardrail Demo"
           goal="Expected behavior: answer with missing information and avoid creating Evidence, Opportunity, or Decision objects."
           inspect={["Agent Summary created objects", "No Evidence, Opportunity, or Decision created"]}
-          prompt="帮我看看这个岗位：Agent 后训练，做 GRPO 和 Reward Model，感觉适合我吗？"
+          prompt="帮我看看这个岗位：Reliable Agent 后训练，做 GRPO 和 Reward Model，感觉适合我吗？"
         />
         <DemoScenarioCard
           title="Opportunity-light Demo"

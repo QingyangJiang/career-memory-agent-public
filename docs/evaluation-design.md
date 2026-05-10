@@ -114,9 +114,10 @@ created objects, and skipped reasons.
 
 Some current citation assertions still use string matching, such as `mustCiteAny`. This
 is useful as a lightweight diagnostic, but it is brittle for long-running memory
-agents. A compensation memory can evolve from `目标总包 100w+` to `目标总包
-150w+`; string checks can then punish the agent for citing a newer or more precise
-object even when the grounding behavior is directionally correct.
+agents. A compensation memory can evolve from one synthetic label to another, such as
+`目标薪酬区间：Demo Band A` to `目标薪酬区间：Demo Band B`; string checks can then
+punish the agent for citing a newer or more precise object even when the grounding
+behavior is directionally correct.
 
 Source-object grounding is a better reliability target because it checks whether the
 assistant used the right underlying Memory or Evidence object, not whether the final
@@ -138,7 +139,7 @@ Implemented pilot fields:
 
 The first lightweight pilot is `compensation_question_uses_memory_without_dump`, which
 keeps the existing `mustCiteAny` string diagnostic and adds both `mustCiteMemoryType:
-"Constraint"` and `mustCiteMemoryIds: ["mem_compensation_target_current"]`. The seed
+"Constraint"` and `mustCiteMemoryIds: ["mem_demo_compensation_target_current"]`. The seed
 data uses that stable Memory id for the current compensation target. This is still a
 pilot: it verifies source-object grounding for one stable fixture, but it does not
 fully solve citation mismatch or latest-memory preference.

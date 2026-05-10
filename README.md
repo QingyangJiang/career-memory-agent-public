@@ -138,6 +138,8 @@ Demo boundaries:
   required JSONL fields for reviewer verification.
 - [Demo deployment guide](docs/deployment-demo.md): demo-safe environment variables,
   SQLite deployment route, reset boundary, and future Vercel/Postgres route.
+- [Privacy sanitization](docs/privacy-sanitization.md): synthetic persona, demo seed
+  boundary, sanitized eval reports, and Git history caveat.
 - [Product architecture](docs/product-architecture.md): product surfaces, data model,
   provider boundary, and workflow overview.
 - [Router design](docs/router-design.md): semantic router, planner split, guardrails,
@@ -254,24 +256,6 @@ flowchart TD
 - Provider boundary for Mock, DeepSeek, and planned OpenAI-compatible / MiMo paths.
 - Case-driven evaluation with hard assertions, soft scores, and failure taxonomy.
 - JSONL trajectory export for optional future Agent RL research.
-
-## Screenshots
-
-### Chat-first Career Agent
-
-![Chat Agent](docs/assets/chat-agent.png)
-
-### Opportunity Analysis
-
-![Opportunity Analysis](docs/assets/opportunity-analysis.png)
-
-### Memory Suggestions
-
-![Memory Suggestions](docs/assets/memory-suggestions.png)
-
-### Agent Run Trace
-
-![Agent Run Trace](docs/assets/agent-run-trace.png)
 
 ## Roadmap / Known Limitations
 

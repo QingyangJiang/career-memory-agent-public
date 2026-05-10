@@ -4,7 +4,7 @@
   "provider": "deepseek-flash",
   "turns": [
     {
-      "user": "岗位职责：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier；构建评测和数据闭环；团队负责教育场景 Agent 后训练；薪资 70k-90k，15薪；要求熟悉 PPO/GRPO/DPO。"
+      "user": "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；岗位职责：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier，构建评测、数据闭环和 AgentRun trace 分析；薪资/职级：Demo Band A，结构包含 base / bonus / equity-like incentive；要求熟悉 PPO/GRPO/DPO。"
     }
   ],
   "expectations": {
@@ -16,7 +16,7 @@
     "maxMemorySuggestions": 0,
     "maxRisks": 3,
     "maxOpenQuestions": 5,
-    "mustMentionAny": ["Agent", "GRPO", "Reward", "薪资", "团队"],
+    "mustMentionAny": ["Agent", "GRPO", "Reward", "Demo Band A", "团队"],
     "mustNotMention": ["直接写入 Memory", "生成/更新 9 条 active risks"]
   }
 }

@@ -4,7 +4,7 @@
   "provider": "deepseek-flash",
   "turns": [
     {
-      "user": "以后我优先看 Agentic RL、后训练、Reward Model、Verifier 这些方向，纯预训练岗位暂时不优先考虑。"
+      "user": "以后我优先看 Reliable Agent、后训练、Reward Model、Verifier 这些方向，纯预训练岗位暂时不优先考虑。"
     }
   ],
   "expectations": {
@@ -20,7 +20,7 @@
     "maxMemorySuggestions": 3,
     "maxRisks": 0,
     "maxOpenQuestions": 0,
-    "mustMentionAny": ["优先", "Agentic RL", "后训练", "Reward Model", "Verifier", "纯预训练"],
+    "mustMentionAny": ["优先", "Reliable Agent", "后训练", "Reward Model", "Verifier", "纯预训练"],
     "mustNotMention": ["公司业务线", "岗位职责占比", "任职要求", "薪资/职级", "owner 空间", "正式 Opportunity"]
   }
 }

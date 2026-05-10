@@ -26,6 +26,9 @@ These reports preserve real recorded results and known failures. They should not
 described as full benchmark evidence unless the exact command, provider, date, and
 limitations are included.
 
+The committed public reports use synthetic persona labels and do not include real
+candidate employment history, real companies, real compensation, or real projects.
+
 The manifest is intended for future dashboards, CI summaries, or export tooling. It is
 not a training dataset and does not add any metrics beyond the committed public report.
 

@@ -2,7 +2,7 @@
   "id": "explicit_memory_update",
   "title": "明确长期偏好生成候选记忆",
   "provider": "deepseek-flash",
-  "turns": [{ "user": "以后我优先看 Agentic RL，纯预训练暂不考虑。" }],
+  "turns": [{ "user": "以后我优先看 Reliable Agent，纯预训练暂不考虑。" }],
   "expectations": {
     "expectedActionLevel": ["suggest_memory_candidate"],
     "expectedEvidenceSufficiency": ["none"],

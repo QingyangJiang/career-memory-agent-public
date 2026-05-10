@@ -21,9 +21,9 @@ remember something.
 
 Examples:
 
-- `以后我优先看 Agentic RL`
+- `以后我优先看 Reliable Agent`
 - `纯预训练暂时不考虑`
-- `目标总包 150w+`
+- `目标薪酬区间：Demo Band A`
 - `记住这个偏好`
 
 Each turn creates at most a few candidates. Save writes a verified `Memory`; Edit &

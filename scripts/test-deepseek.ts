@@ -27,7 +27,7 @@ async function main() {
   }
   console.log("JSON classification: ok");
 
-  const external = await flash.classifyCareerInput?.("帮我找下豆包的 JD");
+  const external = await flash.classifyCareerInput?.("帮我找下星桥智能学习实验室的 JD");
   if (!external || !["needs_external_source", "missing_context"].includes(external.intent)) {
     throw new Error(`expected needs_external_source, got ${external?.intent}`);
   }
@@ -38,7 +38,8 @@ async function main() {
     title: "Agent RL JD smoke test",
     type: "jd",
     sourceUrl: null,
-    content: "岗位职责：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier；构建评测和数据闭环；薪资 70k-90k，15薪。",
+    content:
+      "Synthetic JD：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier；构建评测和数据闭环；薪酬区间为 Demo Band A。",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -71,14 +72,14 @@ async function main() {
     id: "smoke-memory-input",
     title: "Memory preference smoke test",
     type: "user_note",
-    content: "以后我优先看 Agentic RL，纯预训练暂不考虑"
+    content: "以后我优先看 Reliable Agent，纯预训练暂不考虑"
   };
   const memoryOpportunity: OpportunityDraft = {
     type: "user_note",
     company: "self",
     roleTitle: "Career preference",
     status: "discovered",
-    directionTags: ["Agentic RL"],
+    directionTags: ["Reliable Agent"],
     responsibilities: [],
     requirements: [],
     rawSummary: memoryEvidence.content

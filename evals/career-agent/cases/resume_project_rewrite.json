@@ -3,7 +3,7 @@
   "title": "简历项目表达自然改写，不创建机会",
   "provider": "deepseek-flash",
   "turns": [
-    { "user": "帮我把高英评批项目改成更适合 Agent 后训练岗位的说法。" }
+    { "user": "帮我把 RubricFlow Writing Evaluator 项目改成更适合 Agent 后训练岗位的说法。" }
   ],
   "expectations": {
     "expectedIntent": ["rewrite_resume_project", "ask_question"],

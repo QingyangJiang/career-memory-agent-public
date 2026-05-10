@@ -24,17 +24,17 @@ const starterCards = [
   {
     title: "Prepare an interview",
     description: "Turn an opportunity into project talking points, likely questions, and counter-questions.",
-    prompt: "帮我准备淘天交叉面"
+    prompt: "帮我准备星桥智能学习实验室的交叉面"
   },
   {
     title: "Compare opportunities",
     description: "Compare roles by direction, owner space, compensation, and long-term growth.",
-    prompt: "同花顺和淘天哪个更适合我？"
+    prompt: "Aurora Tutor Agent 和 ChainGraph Tool Agent 哪个更适合我？"
   },
   {
     title: "Update career memory",
     description: "Tell me your new preference or goal; I'll create memory suggestions for review.",
-    prompt: "我以后想优先看 Agentic RL 岗位，帮我生成记忆建议。"
+    prompt: "我以后想优先看 Reliable Agent 岗位，帮我生成记忆建议。"
   },
   {
     title: "Review pending actions",

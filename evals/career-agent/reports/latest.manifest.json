@@ -2,6 +2,7 @@
   "date": "2026-05-10",
   "claim_level": "public_snapshot_not_full_benchmark",
   "positioning": "memory-first, evidence-grounded, evaluation-driven Career Agent",
+  "privacy_status": "privacy_sanitized_with_synthetic_persona_labels",
   "runs": [
     {
       "name": "mock-smoke",
@@ -126,7 +127,7 @@
   "source_object_grounding_status": {
     "observation_supported": true,
     "schema_supported": true,
-    "stable_memory_fixture": "mem_compensation_target_current",
+    "stable_memory_fixture": "mem_demo_compensation_target_current",
     "latest_memory_preference": "diagnostic_only_pending_ordering_metadata"
   },
   "not_measured": [
