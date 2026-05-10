@@ -161,6 +161,14 @@ interface AssistantMetadata {
   error?: string;
 }
 
+interface PublicDemoConfig {
+  isDemoMode: boolean;
+  provider: "mock" | "deepseek" | string;
+  allowDeepSeek: boolean;
+  maxInputChars: number;
+  requestLimitPerSession: number;
+}
+
 interface SendResponse {
   thread: ChatThreadDTO;
   userMessage: ChatMessageDTO;
@@ -938,6 +946,7 @@ function ChatComposer({
   mode,
   busy,
   error,
+  demoConfig,
   onInputChange,
   onModeChange,
   onSend
@@ -947,18 +956,27 @@ function ChatComposer({
   mode: CareerAgentMode;
   busy: boolean;
   error?: string | null;
+  demoConfig?: PublicDemoConfig | null;
   onInputChange: (value: string) => void;
   onModeChange: (mode: CareerAgentMode) => void;
   onSend: () => void;
 }) {
+  const maxInputChars = demoConfig?.isDemoMode ? demoConfig.maxInputChars : undefined;
+  const overLimit = typeof maxInputChars === "number" && input.length > maxInputChars;
   const composer = (
     <div className="mx-auto w-full max-w-[760px]">
       {error ? <p className="mb-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+      {overLimit ? (
+        <p className="mb-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Demo input too long. Keep requests under {maxInputChars} characters.
+        </p>
+      ) : null}
       <div className="rounded-3xl border border-slate-200 bg-white p-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
         <textarea
           className="max-h-44 min-h-14 w-full resize-none rounded-2xl border-0 bg-transparent px-3 py-2.5 text-sm leading-6 outline-none"
-          placeholder="Message Career Agent..."
+          placeholder={maxInputChars ? `Message Career Agent... demo limit ${maxInputChars} chars` : "Message Career Agent..."}
           value={input}
+          maxLength={maxInputChars ? maxInputChars + 500 : undefined}
           onChange={(event) => onInputChange(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
@@ -990,11 +1008,16 @@ function ChatComposer({
                 </button>
               ))}
             </div>
+            {maxInputChars ? (
+              <span className={`text-[11px] ${overLimit ? "text-amber-700" : "text-slate-400"}`}>
+                {input.length}/{maxInputChars}
+              </span>
+            ) : null}
           </div>
           <button
             className="flex h-8 min-w-8 items-center justify-center rounded-full bg-focus px-2.5 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:bg-teal-700/35"
             onClick={onSend}
-            disabled={busy || !input.trim()}
+            disabled={busy || !input.trim() || overLimit}
             type="button"
           >
             {busy ? "Sending" : <Send size={16} />}
@@ -1039,6 +1062,7 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
   const [modelNotice, setModelNotice] = useState<string | null>(null);
   const [deepseekConfigured, setDeepseekConfigured] = useState(true);
   const [demoLocked, setDemoLocked] = useState(false);
+  const [demoConfig, setDemoConfig] = useState<PublicDemoConfig | null>(null);
 
   const isNewChat = !currentThread?.id;
   const title = currentThread?.title ?? "New Career Chat";
@@ -1084,10 +1108,11 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
   }, [searchParams, prefillApplied]);
 
   useEffect(() => {
-    void fetch("/api/llm/status")
+    void fetch("/api/demo/config")
       .then((response) => (response.ok ? response.json() : { deepseekConfigured: true }))
-      .then((payload: { deepseekConfigured?: boolean; demo?: { isDemoMode?: boolean; provider?: string } }) => {
+      .then((payload: { deepseekConfigured?: boolean; demo?: PublicDemoConfig }) => {
         setDeepseekConfigured(payload.deepseekConfigured !== false);
+        setDemoConfig(payload.demo ?? null);
         const locked = Boolean(payload.demo?.isDemoMode);
         setDemoLocked(locked);
         if (locked) {
@@ -1100,7 +1125,10 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
           });
         }
       })
-      .catch(() => setDeepseekConfigured(true));
+      .catch(() => {
+        setDeepseekConfigured(true);
+        setDemoConfig(null);
+      });
   }, []);
 
   useEffect(() => {
@@ -1157,6 +1185,10 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
   async function send() {
     const clean = input.trim();
     if (!clean || busy) return;
+    if (demoConfig?.isDemoMode && clean.length > demoConfig.maxInputChars) {
+      setError(`Demo input too long. Please keep requests under ${demoConfig.maxInputChars} characters.`);
+      return;
+    }
 
     setBusy(true);
     setRunningLabel("Running CareerAgentRouter...");
@@ -1239,7 +1271,10 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
                 {providerConfig.provider === "deepseek" ? " · DeepSeek" : ""}
               </p>
               {demoLocked ? (
-                <p className="px-2.5 text-[11px] text-amber-700">Public demo mode uses a locked provider path.</p>
+                <p className="px-2.5 text-[11px] text-amber-700">
+                  Demo locked · {providerConfig.provider === "deepseek" ? "DeepSeek" : "Mock"} provider
+                  {demoConfig?.maxInputChars ? ` · ${demoConfig.maxInputChars} char limit` : ""}
+                </p>
               ) : providerConfig.provider === "deepseek" && !deepseekConfigured ? (
                 <p className="px-2.5 text-[11px] text-amber-700">API key missing</p>
               ) : modelNotice ? (
@@ -1311,6 +1346,7 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
                       mode={mode}
                       busy={busy}
                       error={error}
+                      demoConfig={demoConfig}
                       onInputChange={setInput}
                       onModeChange={setMode}
                       onSend={send}
@@ -1329,6 +1365,7 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
             mode={mode}
             busy={busy}
             error={error}
+            demoConfig={demoConfig}
             onInputChange={setInput}
             onModeChange={setMode}
             onSend={send}

@@ -14,7 +14,7 @@ export interface DemoScenarioCardProps {
 
 export function DemoScenarioCard({ title, goal, prompt, href, links = [] }: DemoScenarioCardProps) {
   const [copied, setCopied] = useState(false);
-  const chatHref = href ?? `/chat/new?prefill=${encodeURIComponent(prompt)}`;
+  const chatHref = href ?? `/chat?prefill=${encodeURIComponent(prompt)}`;
 
   async function copyPrompt() {
     try {

@@ -107,6 +107,7 @@ Online demo: [https://career-opportunity-agent-demo.onrender.com/demo](https://c
 The demo mode is intended for portfolio review, not production SaaS. It shows seeded
 career data, memory-safety behavior, weak-JD guardrails, opportunity-light object
 creation, AgentRun traces, eval reports, and the example-only ART-ready export fixture.
+Demo scenario cards open a prefilled chat through `/chat?prefill=...`.
 
 Demo boundaries:
 
@@ -115,6 +116,7 @@ Demo boundaries:
 - Do not enter private personal information.
 - Demo data may reset on redeploy or service restart.
 - Eval and ART artifacts are linked as public evidence, not training results.
+- Demo launch checklist lives in [docs/deployment-demo.md](docs/deployment-demo.md).
 
 ## Documentation Map
 

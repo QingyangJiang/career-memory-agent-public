@@ -33,11 +33,17 @@ board.
 - Treat `ci-smoke` as a stable regression path, not a full benchmark.
 - Keep online demo changes demo-safe: do not present the demo as production SaaS,
   auto-apply tooling, or a job board.
+- Keep demo environment variables documented in `.env.example` whenever demo config
+  changes.
 - Do not default public demo traffic to a real provider. `DEMO_PROVIDER=mock` and
   `DEMO_ALLOW_DEEPSEEK=false` are the safe defaults.
 - Never expose provider API keys or `DEMO_RESET_TOKEN` to client components.
+- Demo scenario links must be manually verified; prefer `/chat?prefill=...` for new
+  prefilled chats instead of treating `/chat/new` as a persisted thread id.
 - Demo reset endpoints must be gated by `DEMO_MODE`, `DEMO_RESET_ENABLED`, and token
   checks when a token is configured.
+- Keep the reset endpoint as a protected placeholder unless explicitly implementing a
+  safe demo-only clear-and-reseed workflow.
 - `DEMO_MODE` must affect public UI/API traffic only; it must not change eval runner
   behavior or committed eval metrics.
 - Keep the ART bridge optional; do not add ART as a required production dependency.
