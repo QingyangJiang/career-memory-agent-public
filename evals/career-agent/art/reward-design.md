@@ -1,8 +1,11 @@
 # Career Agent ART Reward Design
 
-This is a tentative reward schema for future Agent RL / GRPO experiments. It is not a record of completed training.
+This is a tentative reward schema for future Agent RL / GRPO experiments. It is not a
+record of completed training.
 
-The reward should preserve the existing behavioral oracle: hard assertions remain the safety gates, and soft scoring provides a dense signal only after the gatekeeper checks are considered.
+The reward should preserve the existing behavioral oracle: hard assertions remain the
+safety gates, and soft scoring provides a dense signal only after the gatekeeper checks
+are considered.
 
 ## Proposed Reward Components
 
@@ -18,9 +21,11 @@ The reward should preserve the existing behavioral oracle: hard assertions remai
 
 ## Critical Gates vs Non-terminal Penalties
 
-The reward design should separate critical gate failures from non-terminal quality penalties.
+The reward design should separate critical gate failures from non-terminal quality
+penalties.
 
-Critical gate failures are terminal or near-terminal for training data selection because they violate the core product contract:
+Critical gate failures are terminal or near-terminal for training data selection
+because they violate the core product contract:
 
 | Failure pattern | Severity | Why it matters |
 |---|---|---|
@@ -53,9 +58,15 @@ reward =
   taxonomy_penalties
 ```
 
-The scalar should be clipped to `[0, 1]` for export. Runtime timeout should be reported as a diagnostic and may receive a penalty during eval triage, but it should not be blindly treated as a model-quality reward in training.
+The scalar should be clipped to `[0, 1]` for export. Runtime timeout should be reported
+as a diagnostic and may receive a penalty during eval triage, but it should not be
+blindly treated as a model-quality reward in training.
 
-The current TypeScript exporter does not implement the full component-level reward above. It uses a simplified scalar reward heuristic based on hard gate pass/fail, hard assertion pass rate, normalized average soft score, and taxonomy penalties. Component-level rewards remain future work and should not be reported as implemented training infrastructure.
+The current TypeScript exporter does not implement the full component-level reward
+above. It uses a simplified scalar reward heuristic based on hard gate pass/fail, hard
+assertion pass rate, normalized average soft score, and taxonomy penalties.
+Component-level rewards remain future work and should not be reported as implemented
+training infrastructure.
 
 ## Failure Taxonomy Penalties
 
@@ -139,7 +150,10 @@ Reward emphasis:
 
 ## Open Questions
 
-- How much should citation string matching influence reward versus broader semantic grounding?
-- Should runtime timeouts be excluded from training reward and tracked only as infrastructure failures?
-- How should human preference labels complement hard assertions and rule-based soft scores?
+- How much should citation string matching influence reward versus broader semantic
+  grounding?
+- Should runtime timeouts be excluded from training reward and tracked only as
+  infrastructure failures?
+- How should human preference labels complement hard assertions and rule-based soft
+  scores?
 - How large should each suite be before using it as a training curriculum bucket?

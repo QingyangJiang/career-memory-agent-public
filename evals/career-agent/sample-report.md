@@ -2,11 +2,15 @@
 
 Latest local run date: 2026-05-09
 
-This report records actual local eval runs. It does not include fabricated provider benchmarks, cost estimates, or metrics that were not emitted by the harness.
+This report records actual local eval runs. It does not include fabricated provider
+benchmarks, cost estimates, or metrics that were not emitted by the harness.
 
-`evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local artifacts and are gitignored. The committed public snapshot is this file.
+`evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local
+artifacts and are gitignored. The committed public snapshot is this file.
 
-ART trajectory exports generated from local reports are also local artifacts by default. The committed weak-JD trajectory fixture under `evals/career-agent/art/examples/` is example-only and is not a training dataset.
+ART trajectory exports generated from local reports are also local artifacts by
+default. The committed weak-JD trajectory fixture under
+`evals/career-agent/art/examples/` is example-only and is not a training dataset.
 
 ## Mock Smoke Result
 
@@ -64,7 +68,8 @@ Provider/model: `mock/MockLLMProvider`
 
 Known failure:
 
-- `needs_external_source`: `ERROR_ROUTER_POLICY_MISMATCH`; expected `evidenceSufficiency=none`, actual was `partial`.
+- `needs_external_source`: `ERROR_ROUTER_POLICY_MISMATCH`; expected
+  `evidenceSufficiency=none`, actual was `partial`.
 
 ## DeepSeek Flash 3-case Result
 
@@ -97,9 +102,11 @@ Provider/model: `deepseek/deepseek-v4-flash`
 
 ### Known Failures
 
-- Citation mismatch: `ERROR_CITATION_MISMATCH` on `compensation_question_uses_memory_without_dump`.
+- Citation mismatch: `ERROR_CITATION_MISMATCH` on
+  `compensation_question_uses_memory_without_dump`.
 - Runtime timeout: `ERROR_RUNTIME_TIMEOUT` on `complete_jd_can_create_objects`.
-- Router policy mismatch: `ERROR_ROUTER_POLICY_MISMATCH` on `compare_opportunities`, which returned `answer_with_info_gaps` instead of the expected action level.
+- Router policy mismatch: `ERROR_ROUTER_POLICY_MISMATCH` on `compare_opportunities`,
+  which returned `answer_with_info_gaps` instead of the expected action level.
 
 ## Targeted DeepSeek Checks
 
@@ -112,7 +119,9 @@ npm run eval:career-agent -- --provider=deepseek-flash --case=follow_up_uses_con
 
 Observed result:
 
-- `weak_jd_should_not_create_objects`: PASS on rerun. One earlier targeted run in this session returned FAIL before its assertion details were captured, so this case should be watched for possible provider variability.
+- `weak_jd_should_not_create_objects`: PASS on rerun. One earlier targeted run in this
+  session returned FAIL before its assertion details were captured, so this case should
+  be watched for possible provider variability.
 - `follow_up_uses_context`: PASS.
 
 ## DeepSeek Memory Suite
@@ -138,7 +147,9 @@ Provider/model: `deepseek/deepseek-v4-flash`
 
 Known failure:
 
-- `compensation_question_uses_memory_without_dump`: `ERROR_CITATION_MISMATCH`; expected citation/context containing `目标总包 100w+`, actual context cited `目标总包 150w+` and unrelated refs.
+- `compensation_question_uses_memory_without_dump`: `ERROR_CITATION_MISMATCH`; expected
+  citation/context containing `目标总包 100w+`, actual context cited `目标总包
+  150w+` and unrelated refs.
 
 ## Not Measured
 
@@ -148,7 +159,8 @@ Known failure:
 - MiMo results: not run.
 - OpenAI-compatible provider results: not run.
 - Full follow-up resolution pass rate: requires running the follow-up suite.
-- Full weak JD over-creation rate: requires running the opportunity or core-safety suite.
+- Full weak JD over-creation rate: requires running the opportunity or core-safety
+  suite.
 
 ## Next Eval Suites To Run
 
