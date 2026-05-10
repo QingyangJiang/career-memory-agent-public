@@ -44,6 +44,13 @@ const CONTEXT_SIGNALS = [
   "字节"
 ];
 
+const SEMANTIC_CONTEXT_GROUPS = [
+  ["薪资", "薪酬", "总包", "base", "年终", "股票", "期权", "预算", "offer"],
+  ["面试", "一面", "二面", "终面", "交叉面", "反问"],
+  ["owner", "负责人", "闭环", "业务指标", "落地"],
+  ["agent", "后训练", "rl", "grpo", "ppo", "rlhf", "rlvr", "reward", "verifier", "judge", "评测"]
+];
+
 export interface ChatContextRef {
   entityType: "memory" | "opportunity" | "evidence" | "risk" | "decision" | "agent_run" | "chat_message";
   entityId: string;
@@ -67,10 +74,16 @@ function scoreText(text: string, query: string) {
   const normalizedText = normalizeText(text);
   const normalizedQuery = normalizeText(query);
   const directHit = normalizedText.includes(normalizedQuery) ? 8 : 0;
-  return CONTEXT_SIGNALS.reduce((sum, signal) => {
+  const lexicalScore = CONTEXT_SIGNALS.reduce((sum, signal) => {
     const normalizedSignal = normalizeText(signal);
     return sum + (normalizedQuery.includes(normalizedSignal) && normalizedText.includes(normalizedSignal) ? 2 : 0);
   }, directHit);
+  const semanticScore = SEMANTIC_CONTEXT_GROUPS.reduce((sum, group) => {
+    const queryHit = group.some((signal) => normalizedQuery.includes(normalizeText(signal)));
+    const textHit = group.some((signal) => normalizedText.includes(normalizeText(signal)));
+    return sum + (queryHit && textHit ? 4 : 0);
+  }, 0);
+  return lexicalScore + semanticScore;
 }
 
 function compactTitle(input: string) {

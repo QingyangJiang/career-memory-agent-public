@@ -244,6 +244,22 @@ function hasExplicitLongTermMemorySignal(input: string) {
   return stableSignal && (directionSignal || normalized.includes(normalizeText("目标")) || normalized.includes(normalizeText("记住")));
 }
 
+function isExploratoryPreferenceQuestion(input: string) {
+  const normalized = normalizeText(input);
+  const asksForChoice =
+    ["应该", "要不要", "是否", "还是", "适合", "吗"].some((signal) => normalized.includes(normalizeText(signal))) ||
+    /[?？]/.test(input);
+  const asksToPersist = ["记住", "保存", "帮我记", "作为筛选标准", "后续筛选", "硬约束"].some((signal) =>
+    normalized.includes(normalizeText(signal))
+  );
+  return asksForChoice && !asksToPersist;
+}
+
+function hasDurableMemoryUpdateIntent(input: string) {
+  if (isExploratoryPreferenceQuestion(input)) return false;
+  return hasExplicitLongTermMemorySignal(input) || hasAny(input, updateMemorySignals);
+}
+
 function detectCurrentInputType(input: string, context?: ConversationContext): CurrentInputType {
   const normalized = normalizeText(input);
   const fieldHits = jobDescriptionFieldSignals.filter((signal) => normalized.includes(normalizeText(signal))).length;
@@ -253,7 +269,7 @@ function detectCurrentInputType(input: string, context?: ConversationContext): C
     (normalized.includes(normalizeText("岗位职责")) && normalized.includes(normalizeText("任职要求")));
   if (hasJobDescriptionShape) return "job_description";
   if (isFollowUpInput(input, context)) return "follow_up";
-  if (hasExplicitLongTermMemorySignal(input) || hasAny(input, updateMemorySignals)) return "explicit_memory_update";
+  if (hasDurableMemoryUpdateIntent(input)) return "explicit_memory_update";
   if (hasAny(input, interviewReviewSignals)) return "interview_review";
   if (hasAny(input, interviewSignals) && input.length < 180) return "interview_prep_request";
   if (hasAny(input, resumeProjectSignals) || /项目.*(agent|后训练|岗位|简历|说法|表达)/i.test(input)) return "resume_project_rewrite";
@@ -272,7 +288,7 @@ function buildPreRouterHints(input: string, context?: ConversationContext): PreR
   const hasRequirements = ["任职要求", "要求", "熟悉", "经验"].some((signal) => normalized.includes(normalizeText(signal)));
   const currentInputType = detectCurrentInputType(input, context);
   return {
-    hasExplicitMemorySignal: hasExplicitLongTermMemorySignal(input) || updateMemorySignals.some((signal) => normalized.includes(normalizeText(signal))),
+    hasExplicitMemorySignal: hasDurableMemoryUpdateIntent(input),
     hasFollowUpSignal: isFollowUpInput(input, context),
     hasEvidenceLikeText: currentInputType === "job_description" || evidenceHits > 0 || hasAny(input, ["jd", "岗位", "岗位职责", "任职要求"]),
     hasStrongJDSignal: currentInputType === "job_description" || sufficiency.evidenceSufficiency === "sufficient" || (hasTitle && hasResponsibilities && hasRequirements),
@@ -417,7 +433,7 @@ function heuristicClassifyInput(input: string, mode: CareerAgentMode, context?: 
     return followUpClassification(clean, context as ConversationContext);
   }
 
-  if (hasExplicitLongTermMemorySignal(clean) || hasAny(clean, updateMemorySignals)) {
+  if (hasDurableMemoryUpdateIntent(clean)) {
     return {
       ...baseClassification("update_memory"),
       actionLevel: "suggest_memory_candidate",
@@ -743,6 +759,31 @@ function applyPostPolicyGuard(classification: RouterClassification, input: strin
     };
   }
 
+  if (guarded.intent === "update_memory" && !hints.hasExplicitMemorySignal) {
+    corrections.push("exploratory career direction question should answer directly without memory suggestion");
+    guarded = {
+      ...guarded,
+      intent: "ask_question",
+      actionLevel: "answer_only",
+      evidenceSufficiency: "none",
+      memorySignalStrength: "none",
+      missingFields: [],
+      evidenceType: "none",
+      shouldCreateEvidence: false,
+      shouldExtractOpportunity: false,
+      shouldGenerateAssessment: false,
+      shouldGenerateRisks: false,
+      shouldGenerateOpenQuestions: false,
+      shouldGenerateDecision: false,
+      shouldCreateObjects: false,
+      shouldSuggestMemoryUpdates: false,
+      shouldSuggestMemory: false,
+      shouldShowStructuredCard: false,
+      shouldShowInfoGaps: false,
+      skippedReason: "career direction question, no durable memory update request"
+    };
+  }
+
   if (guarded.intent === "update_memory") {
     if (guarded.shouldShowInfoGaps || guarded.shouldCreateObjects || guarded.shouldCreateEvidence || guarded.shouldGenerateDecision) {
       corrections.push("memory update cannot show JD info gaps or create structured opportunity objects");
@@ -843,6 +884,34 @@ function applyPostPolicyGuard(classification: RouterClassification, input: strin
       shouldGenerateOpenQuestions: false,
       shouldGenerateDecision: false,
       shouldCreateObjects: false
+    };
+  }
+
+  if (
+    ["analyze_evidence", "analyze_evidence_candidate"].includes(guarded.intent) &&
+    guarded.evidenceSufficiency === "none" &&
+    !hints.hasStrongJDSignal
+  ) {
+    corrections.push("analysis requires source evidence; answer the career question directly");
+    guarded = {
+      ...guarded,
+      intent: "ask_question",
+      actionLevel: "answer_only",
+      evidenceSufficiency: "none",
+      missingFields: [],
+      evidenceType: "none",
+      shouldCreateEvidence: false,
+      shouldExtractOpportunity: false,
+      shouldGenerateAssessment: false,
+      shouldGenerateRisks: false,
+      shouldGenerateOpenQuestions: false,
+      shouldGenerateDecision: false,
+      shouldCreateObjects: false,
+      shouldSuggestMemoryUpdates: false,
+      shouldSuggestMemory: false,
+      shouldShowStructuredCard: false,
+      shouldShowInfoGaps: false,
+      skippedReason: "no source evidence; answer-first career question"
     };
   }
 

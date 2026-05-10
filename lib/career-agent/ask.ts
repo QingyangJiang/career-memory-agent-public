@@ -57,11 +57,28 @@ const SIGNALS = [
   "offer"
 ];
 
+const SEMANTIC_SIGNAL_GROUPS = [
+  ["薪资", "薪酬", "总包", "base", "年终", "股票", "期权", "预算", "offer"],
+  ["面试", "一面", "二面", "终面", "交叉面", "反问"],
+  ["owner", "负责人", "闭环", "业务指标", "落地"],
+  ["agent", "后训练", "rl", "grpo", "ppo", "rlhf", "rlvr", "reward", "verifier", "judge", "评测"]
+];
+
+function scoreSemanticConcepts(text: string, query: string) {
+  const normalizedText = text.toLowerCase();
+  const normalizedQuery = query.toLowerCase();
+  return SEMANTIC_SIGNAL_GROUPS.reduce((sum, group) => {
+    const queryHit = group.some((signal) => normalizedQuery.includes(signal.toLowerCase()));
+    const textHit = group.some((signal) => normalizedText.includes(signal.toLowerCase()));
+    return sum + (queryHit && textHit ? 4 : 0);
+  }, 0);
+}
+
 function scoreText(text: string, query: string) {
   const normalizedText = text.toLowerCase();
   const normalizedQuery = query.toLowerCase();
   const directHit = normalizedText.includes(normalizedQuery) ? 4 : 0;
-  return SIGNALS.reduce((sum, signal) => sum + (normalizedQuery.includes(signal) && normalizedText.includes(signal) ? 2 : 0), directHit);
+  return SIGNALS.reduce((sum, signal) => sum + (normalizedQuery.includes(signal) && normalizedText.includes(signal) ? 2 : 0), directHit) + scoreSemanticConcepts(text, query);
 }
 
 function uniqById<T extends { id: string }>(items: T[]) {
@@ -208,10 +225,13 @@ export async function askCareerAgent(question: string, conversationContext?: Con
   const scoredMemories = memories
     .map((memory) => ({
       memory,
-      score:
-        scoreText([memory.title, memory.content, memory.tags.join(" "), memory.type].join(" "), cleanQuestion) +
-        (["Preference", "Constraint", "CareerGoal", "Project", "ProjectClaim"].includes(memory.type) ? 1 : 0)
+      score: scoreText([memory.title, memory.content, memory.tags.join(" "), memory.type].join(" "), cleanQuestion)
     }))
+    .map((item) => ({
+      ...item,
+      score: item.score + (item.score > 0 && ["Preference", "Constraint", "CareerGoal", "Project", "ProjectClaim"].includes(item.memory.type) ? 1 : 0)
+    }))
+    .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5)
     .map((item) => item.memory);
@@ -230,12 +250,23 @@ export async function askCareerAgent(question: string, conversationContext?: Con
         cleanQuestion
       )
     }))
+    .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 3)
     .map((item) => item.opportunity);
 
-  const topRisks = risksRaw.slice(0, 3).map(toRiskDTO);
-  const topDecisions = decisionsRaw.slice(0, 3).map(toDecisionDTO);
+  const topRisks = risksRaw
+    .map((risk) => ({ risk: toRiskDTO(risk), score: scoreText([risk.title, risk.description, risk.severity, risk.likelihood].join(" "), cleanQuestion) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((item) => item.risk);
+  const topDecisions = decisionsRaw
+    .map((decision) => ({ decision: toDecisionDTO(decision), score: scoreText([decision.decision, decision.confidence, decision.rationale].join(" "), cleanQuestion) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((item) => item.decision);
   const linkedEvidenceIds = new Set<string>();
   scoredMemories.forEach((memory) => memory.sourceEvidenceIds.forEach((id) => linkedEvidenceIds.add(id)));
   opportunitiesRaw
