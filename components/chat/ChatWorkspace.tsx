@@ -312,11 +312,22 @@ function threadProviderConfig(thread: ChatThreadDTO): LLMProviderConfig {
 
 function ModelProviderSelector({
   value,
-  onChange
+  onChange,
+  demoLocked
 }: {
   value: LLMProviderConfig;
   onChange: (config: LLMProviderConfig) => void;
+  demoLocked?: boolean;
 }) {
+  if (demoLocked) {
+    return (
+      <div className="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-ink">
+        {providerLabel(value)}
+        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">Demo locked</span>
+      </div>
+    );
+  }
+
   return (
     <details className="group relative">
       <summary className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-ink transition hover:bg-white">
@@ -1027,6 +1038,7 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
   });
   const [modelNotice, setModelNotice] = useState<string | null>(null);
   const [deepseekConfigured, setDeepseekConfigured] = useState(true);
+  const [demoLocked, setDemoLocked] = useState(false);
 
   const isNewChat = !currentThread?.id;
   const title = currentThread?.title ?? "New Career Chat";
@@ -1074,12 +1086,26 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
   useEffect(() => {
     void fetch("/api/llm/status")
       .then((response) => (response.ok ? response.json() : { deepseekConfigured: true }))
-      .then((payload: { deepseekConfigured?: boolean }) => setDeepseekConfigured(payload.deepseekConfigured !== false))
+      .then((payload: { deepseekConfigured?: boolean; demo?: { isDemoMode?: boolean; provider?: string } }) => {
+        setDeepseekConfigured(payload.deepseekConfigured !== false);
+        const locked = Boolean(payload.demo?.isDemoMode);
+        setDemoLocked(locked);
+        if (locked) {
+          setProviderConfig({
+            provider: payload.demo?.provider === "deepseek" ? "deepseek" : "mock",
+            model: payload.demo?.provider === "deepseek" ? undefined : "MockLLMProvider",
+            providerLabel: payload.demo?.provider === "deepseek" ? "DeepSeek" : "MockLLMProvider",
+            thinking: "disabled",
+            reasoningEffort: "none"
+          });
+        }
+      })
       .catch(() => setDeepseekConfigured(true));
   }, []);
 
   useEffect(() => {
     if (currentThread?.id) return;
+    if (demoLocked) return;
     const stored = window.localStorage.getItem("career-agent-provider");
     if (!stored) return;
     try {
@@ -1088,9 +1114,10 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
     } catch {
       window.localStorage.removeItem("career-agent-provider");
     }
-  }, [currentThread?.id]);
+  }, [currentThread?.id, demoLocked]);
 
   async function selectProvider(config: LLMProviderConfig) {
+    if (demoLocked) return;
     setProviderConfig(config);
     setModelNotice(null);
     if (!currentThread?.id) {
@@ -1205,13 +1232,15 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
         <header className="shrink-0 border-b border-slate-200/70 bg-slate-50/70 px-5 py-2.5">
           <div className="flex w-full items-center justify-between gap-4">
             <div className="min-w-0">
-              <ModelProviderSelector value={providerConfig} onChange={selectProvider} />
+              <ModelProviderSelector value={providerConfig} onChange={selectProvider} demoLocked={demoLocked} />
               <p className="mt-0.5 line-clamp-1 px-2.5 text-[11px] text-slate-400">
                 {currentThread?.status === "archived" ? "Archived · " : ""}
                 {isNewChat ? "New thread" : title}
                 {providerConfig.provider === "deepseek" ? " · DeepSeek" : ""}
               </p>
-              {providerConfig.provider === "deepseek" && !deepseekConfigured ? (
+              {demoLocked ? (
+                <p className="px-2.5 text-[11px] text-amber-700">Public demo mode uses a locked provider path.</p>
+              ) : providerConfig.provider === "deepseek" && !deepseekConfigured ? (
                 <p className="px-2.5 text-[11px] text-amber-700">API key missing</p>
               ) : modelNotice ? (
                 <p className="px-2.5 text-[11px] text-focus">{modelNotice}</p>

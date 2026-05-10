@@ -29,6 +29,15 @@ board.
 - Keep CI on mock/local paths only; do not require `DEEPSEEK_API_KEY` for GitHub
   Actions.
 - Treat `ci-smoke` as a stable regression path, not a full benchmark.
+- Keep online demo changes demo-safe: do not present the demo as production SaaS,
+  auto-apply tooling, or a job board.
+- Do not default public demo traffic to a real provider. `DEMO_PROVIDER=mock` and
+  `DEMO_ALLOW_DEEPSEEK=false` are the safe defaults.
+- Never expose provider API keys or `DEMO_RESET_TOKEN` to client components.
+- Demo reset endpoints must be gated by `DEMO_MODE`, `DEMO_RESET_ENABLED`, and token
+  checks when a token is configured.
+- `DEMO_MODE` must affect public UI/API traffic only; it must not change eval runner
+  behavior or committed eval metrics.
 - Keep the ART bridge optional; do not add ART as a required production dependency.
 - Do not claim ART training results unless real training logs, model id, before/after
   eval, and reward definition exist.

@@ -8,6 +8,7 @@ import type { ChatThreadDTO } from "@/lib/types";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
+  { href: "/demo", label: "Demo", icon: Sparkles },
   { href: "/chat", label: "Chat", icon: MessageSquareText },
   { href: "/memories", label: "Memories", icon: BrainCircuit },
   { href: "/evidence", label: "Evidence", icon: FileText },

@@ -102,6 +102,22 @@ npm run art:export -- --input evals/career-agent/report.json --output evals/care
 files and are ignored by Git. The committed weak-JD trajectory fixture is example-only,
 not a training dataset.
 
+## Online Demo
+
+Online demo: planned / pending deployment.
+
+The demo mode is intended for portfolio review, not production SaaS. It shows seeded
+career data, memory-safety behavior, weak-JD guardrails, opportunity-light object
+creation, AgentRun traces, eval reports, and the example-only ART-ready export fixture.
+
+Demo boundaries:
+
+- Mock provider by default.
+- DeepSeek is disabled unless explicitly enabled for a controlled deployment.
+- Do not enter private personal information.
+- Demo data may be reset periodically.
+- Eval and ART artifacts are linked as public evidence, not training results.
+
 ## Documentation Map
 
 - [Evaluation design](docs/evaluation-design.md): hard assertions, soft scoring,
@@ -118,6 +134,8 @@ not a training dataset.
   component-level reward design versus the current exporter heuristic.
 - [ART export validation](evals/career-agent/art/export-validation.md): commands and
   required JSONL fields for reviewer verification.
+- [Demo deployment guide](docs/deployment-demo.md): demo-safe environment variables,
+  SQLite deployment route, reset boundary, and future Vercel/Postgres route.
 - [Product architecture](docs/product-architecture.md): product surfaces, data model,
   provider boundary, and workflow overview.
 - [Router design](docs/router-design.md): semantic router, planner split, guardrails,
