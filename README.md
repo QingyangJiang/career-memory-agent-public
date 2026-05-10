@@ -109,6 +109,8 @@ the tentative reward schema.
 
 - [Evaluation design](docs/evaluation-design.md): methodology, hard assertions, soft
   scoring, core risks, and failure taxonomy.
+- [Latest evaluation report](evals/career-agent/sample-report.md): public snapshot of
+  recorded local runs, known failures, unmeasured metrics, and next suites.
 - [ART integration bridge](docs/art-integration.md): optional trajectory and reward
   mapping for future Agent RL / GRPO research.
 - [Interview demo script](docs/demo-script.md): 3-4 minute walkthrough for memory
@@ -117,6 +119,33 @@ the tentative reward schema.
   through the existing LLM boundary.
 - [InspectAI adapter notes](evals/career-agent/inspect/README.md): standardized dataset
   / solver / scorer adapter around the existing domain oracle.
+
+## Quick Start / Verification
+
+Install dependencies, prepare the local SQLite database, and start the app:
+
+```bash
+npm install
+npx prisma migrate dev
+npm run seed
+npm run dev
+```
+
+Open `http://localhost:3000`. No API key is required for the local MVP because the
+deterministic `MockLLMProvider` works out of the box.
+
+Run the core verification path:
+
+```bash
+npm run typecheck
+npm run build
+npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+```
+
+The eval runner writes local `evals/career-agent/report.json` and
+`evals/career-agent/report.md` files. They are gitignored generated artifacts; the
+committed public snapshot is
+[evals/career-agent/sample-report.md](evals/career-agent/sample-report.md).
 
 This is not a chatbot shell. It treats the career process as a long-running agent
 workflow:
@@ -152,23 +181,28 @@ evidence, and agent workflows.
 Career Memory Agent is designed around five core layers:
 
 1. **Chat Interface**
-A ChatGPT-like interaction layer for natural career conversations.
+
+   A ChatGPT-like interaction layer for natural career conversations.
 
 2. **Memory Layer**
-Extracts durable user facts, preferences, goals, and project history as memory
-suggestions. Long-term memory is only saved after explicit user confirmation.
+
+   Extracts durable user facts, preferences, goals, and project history as memory
+   suggestions. Long-term memory is only saved after explicit user confirmation.
 
 3. **Evidence Layer**
-Stores raw job descriptions, interview notes, resume fragments, project descriptions,
-and user-provided context.
+
+   Stores raw job descriptions, interview notes, resume fragments, project descriptions,
+   and user-provided context.
 
 4. **Opportunity Layer**
-Converts high-quality evidence into structured career opportunities with status,
-company, role, stage, fit analysis, risks, and next actions.
+
+   Converts high-quality evidence into structured career opportunities with status,
+   company, role, stage, fit analysis, risks, and next actions.
 
 5. **Agent Run & Evaluation Layer**
-Records agent runs, provider metadata, intermediate artifacts, and evaluation results
-for debugging and continuous improvement.
+
+   Records agent runs, provider metadata, intermediate artifacts, and evaluation results
+   for debugging and continuous improvement.
 
 ## Architecture
 

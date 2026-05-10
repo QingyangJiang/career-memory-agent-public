@@ -3,11 +3,17 @@
 This is a tentative reward schema for future Agent RL / GRPO experiments. It is not a
 record of completed training.
 
+Current status: no ART training run has been completed, no trained model id exists, no
+before/after ART eval exists, and no model-quality improvement is claimed.
+
 The reward should preserve the existing behavioral oracle: hard assertions remain the
 safety gates, and soft scoring provides a dense signal only after the gatekeeper checks
 are considered.
 
-## Proposed Reward Components
+## Proposed Component-level Reward Design
+
+This section describes the target reward design for future experiments. It is not
+implemented as training infrastructure in the current repository.
 
 | Component | Range | Intent |
 |---|---:|---|
@@ -44,7 +50,7 @@ Non-terminal penalties are useful for ranking imperfect but salvageable trajecto
 | Trace incompleteness | Case-dependent | Severe for trace-focused evals; otherwise a debugging and auditability penalty. |
 | Runtime timeout | Diagnostic by default | Track separately unless the timeout reflects a repeatable model or orchestration failure. |
 
-## Draft Scalar Reward
+## Proposed Component-level Scalar
 
 ```text
 reward =
@@ -58,13 +64,28 @@ reward =
   taxonomy_penalties
 ```
 
-The scalar should be clipped to `[0, 1]` for export. Runtime timeout should be reported
-as a diagnostic and may receive a penalty during eval triage, but it should not be
-blindly treated as a model-quality reward in training.
+This proposed scalar should be clipped to `[0, 1]` if it is implemented in a future
+training pipeline. Runtime timeout should be reported as a diagnostic and may receive a
+penalty during eval triage, but it should not be blindly treated as a model-quality
+reward in training.
 
-The current TypeScript exporter does not implement the full component-level reward
-above. It uses a simplified scalar reward heuristic based on hard gate pass/fail, hard
-assertion pass rate, normalized average soft score, and taxonomy penalties.
+## Current Exporter Heuristic
+
+The current TypeScript exporter does not implement the component-level reward above.
+It emits `reward_model: "simplified_scalar_v0"` and a `derived_scalar_reward` for
+export inspection only.
+
+`simplified_scalar_v0` combines:
+
+- hard gate pass/fail;
+- hard assertion pass rate;
+- normalized average soft score;
+- failure taxonomy penalties.
+
+The exporter also emits `reward_notes` to make the boundary explicit: this scalar is
+not a training reward implementation, not evidence of an ART training run, and not a
+model-quality improvement claim.
+
 Component-level rewards remain future work and should not be reported as implemented
 training infrastructure.
 

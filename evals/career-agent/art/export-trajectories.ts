@@ -73,7 +73,9 @@ interface TrajectoryRecord {
     breakdown: NumberRecord;
   };
   failure_taxonomy: FailureTaxonomy[];
+  reward_model: "simplified_scalar_v0";
   derived_scalar_reward: number;
+  reward_notes: string[];
   notes: string[];
 }
 
@@ -314,15 +316,32 @@ function taxonomyPenalty(taxonomy: FailureTaxonomy[]): number {
   return taxonomy.reduce((sum, item) => sum + TAXONOMY_PENALTY[item], 0);
 }
 
+function rewardNotes(result: EvalResult): string[] {
+  return [
+    "simplified_scalar_v0 is an export inspection heuristic, not a training reward implementation.",
+    "Component-level reward remains design work and is not implemented by this exporter.",
+    "No ART training run, trained model id, or model-quality improvement is implied.",
+    result.observation.timedOut
+      ? "Runtime timeout is treated as an infrastructure/orchestration diagnostic by default."
+      : ""
+  ].filter(Boolean);
+}
+
 function deriveReward(result: EvalResult): number {
   const hardGate = result.judgement.passed ? 1 : 0;
-  const normalizedSoft = Math.max(0, Math.min(1, result.judgement.averageSoftScore / 5));
+  const normalizedSoft = Math.max(
+    0,
+    Math.min(1, result.judgement.averageSoftScore / 5)
+  );
   const hardPassRate = Math.max(0, Math.min(1, result.judgement.hardPassRate));
   const base = 0.35 * hardGate + 0.35 * hardPassRate + 0.3 * normalizedSoft;
 
   return Math.max(
     0,
-    Math.min(1, Number((base - taxonomyPenalty(result.judgement.errorTaxonomy)).toFixed(4)))
+    Math.min(
+      1,
+      Number((base - taxonomyPenalty(result.judgement.errorTaxonomy)).toFixed(4))
+    )
   );
 }
 
@@ -387,7 +406,9 @@ function toTrajectory(
       breakdown: result.judgement.softScores
     },
     failure_taxonomy: result.judgement.errorTaxonomy,
+    reward_model: "simplified_scalar_v0",
     derived_scalar_reward: deriveReward(result),
+    reward_notes: rewardNotes(result),
     notes
   };
 }

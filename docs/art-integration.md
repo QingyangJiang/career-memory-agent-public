@@ -32,6 +32,8 @@ research:
 - No GPU, vLLM, ART server, or Python training environment required for normal app
   usage.
 - No ART training run has been completed yet.
+- No trained model id exists.
+- No before/after ART eval exists.
 - No claim that any model improved from reinforcement learning.
 - No committed trajectory artifact should be treated as a training dataset unless it is
   backed by a real eval report, dataset version, reward definition, and training plan.
@@ -98,7 +100,9 @@ Each JSONL record includes:
 | `hard_assertion_result` | Pass flag, pass rate, and failed hard assertions. |
 | `soft_score` | Average soft score and rule-based breakdown. |
 | `failure_taxonomy` | Structured failure labels emitted by the eval oracle. |
+| `reward_model` | Exporter heuristic identifier, currently `simplified_scalar_v0`. |
 | `derived_scalar_reward` | Simplified heuristic reward for export inspection. |
+| `reward_notes` | Caveats explaining that the scalar is not a training reward result. |
 | `notes` | Export caveats and runtime diagnostics. |
 
 ## Phases
@@ -113,7 +117,8 @@ exporter.
 
 Export eval results into JSONL records containing task ids, suite labels,
 provider/model, summarized messages, agent steps when available, hard assertion
-outcomes, soft score, failure taxonomy, and a derived scalar reward.
+outcomes, soft score, failure taxonomy, reward heuristic metadata, and a derived scalar
+reward.
 
 ### Phase 2: Offline ART Notebook / Toy Experiment
 

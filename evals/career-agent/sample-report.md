@@ -2,17 +2,29 @@
 
 Latest local run date: 2026-05-09
 
-This report records actual local eval runs. It does not include fabricated provider
-benchmarks, cost estimates, or metrics that were not emitted by the harness.
+This committed report is the public snapshot for the portfolio repo. It records actual
+local eval runs only. It does not include fabricated provider benchmarks, cost
+estimates, or metrics that were not emitted by the harness.
 
 `evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local
-artifacts and are gitignored. The committed public snapshot is this file.
+artifacts and are gitignored. They are useful for local reproduction, but this file is
+the stable report index committed to the repository.
 
 ART trajectory exports generated from local reports are also local artifacts by
 default. The committed weak-JD trajectory fixture under
 `evals/career-agent/art/examples/` is example-only and is not a training dataset.
 
-## Mock Smoke Result
+## Summary Table
+
+| Run | Provider/model | Cases | Result | Main signal |
+|---|---|---:|---|---|
+| Mock smoke | `mock/MockLLMProvider` | 3 | 3/3 PASS | Local smoke path and memory/object safety checks passed. |
+| Mock core-safety | `mock/MockLLMProvider` | 5 | 4/5 PASS | Exposes known external-source router policy mismatch. |
+| DeepSeek diagnostic 3-case | `deepseek/deepseek-v4-flash` | 3 | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and timeout. |
+| Targeted DeepSeek checks | `deepseek/deepseek-v4-flash` | 2 targeted cases | PASS on recorded reruns | Weak-JD and follow-up targeted checks passed on rerun. |
+| DeepSeek memory suite | `deepseek/deepseek-v4-flash` | 4 | 3/4 PASS | Exposes compensation citation mismatch. |
+
+## Mock Smoke
 
 Command:
 
@@ -33,21 +45,19 @@ Provider/model: `mock/MockLLMProvider`
 | P95 latency | 465ms |
 | Timeout count | 0 |
 
-### Cases
-
 | Case | Result | Notes |
 |---|---|---|
 | `explicit_memory_update` | PASS | Created 2 pending MemorySuggestions; direct durable Memory writes: 0. |
 | `weak_jd_should_not_create_objects` | PASS | Created Evidence: false; Opportunity: false; Decision: false across both turns. |
 | `ordinary_chat_no_objects` | PASS | Created no durable objects; direct durable Memory writes: 0. |
 
-### Derived Checks
+Derived checks:
 
 - Memory safety violations: 0 observed in this Mock smoke run.
 - Weak JD over-creation: not observed.
 - Top failure taxonomy: none emitted.
 
-## Mock Core-safety Suite
+## Mock Core-safety
 
 Command:
 
@@ -71,7 +81,7 @@ Known failure:
 - `needs_external_source`: `ERROR_ROUTER_POLICY_MISMATCH`; expected
   `evidenceSufficiency=none`, actual was `partial`.
 
-## DeepSeek Flash 3-case Result
+## DeepSeek Diagnostic 3-case
 
 Command:
 
@@ -92,21 +102,19 @@ Provider/model: `deepseek/deepseek-v4-flash`
 | P95 latency | 60,000ms |
 | Timeout count | 1 |
 
-### Cases
-
 | Case | Result | Failure summary |
 |---|---|---|
 | `compare_opportunities` | FAIL | Expected `actionLevel` did not match; actual was `answer_with_info_gaps`. |
 | `compensation_question_uses_memory_without_dump` | FAIL | `final: mustCiteAny` expected `目标总包 100w+`; actual citations/context included `目标总包 150w+` and other refs. |
 | `complete_jd_can_create_objects` | FAIL | Timed out after 60,000ms before producing turns. |
 
-### Known Failures
+Failure taxonomy:
 
-- Citation mismatch: `ERROR_CITATION_MISMATCH` on
-  `compensation_question_uses_memory_without_dump`.
-- Runtime timeout: `ERROR_RUNTIME_TIMEOUT` on `complete_jd_can_create_objects`.
-- Router policy mismatch: `ERROR_ROUTER_POLICY_MISMATCH` on `compare_opportunities`,
-  which returned `answer_with_info_gaps` instead of the expected action level.
+- `ERROR_ROUTER_POLICY_MISMATCH` on `compare_opportunities`.
+- `ERROR_CITATION_MISMATCH` on `compensation_question_uses_memory_without_dump`.
+- `ERROR_RUNTIME_TIMEOUT` on `complete_jd_can_create_objects`.
+
+This diagnostic run is useful failure evidence, not a full benchmark.
 
 ## Targeted DeepSeek Checks
 
@@ -151,6 +159,16 @@ Known failure:
   citation/context containing `目标总包 100w+`, actual context cited `目标总包
   150w+` and unrelated refs.
 
+## Known Failures
+
+| Area | Case | Failure |
+|---|---|---|
+| Mock core-safety | `needs_external_source` | `ERROR_ROUTER_POLICY_MISMATCH`; expected `evidenceSufficiency=none`, actual was `partial`. |
+| DeepSeek diagnostic | `compare_opportunities` | Action-level mismatch; actual was `answer_with_info_gaps`. |
+| DeepSeek diagnostic | `compensation_question_uses_memory_without_dump` | Citation mismatch; expected `目标总包 100w+`, actual context included `目标总包 150w+` and other refs. |
+| DeepSeek diagnostic | `complete_jd_can_create_objects` | Runtime timeout after 60,000ms. |
+| DeepSeek memory suite | `compensation_question_uses_memory_without_dump` | Compensation citation mismatch. |
+
 ## Not Measured
 
 - Cost: not emitted by the current report payload.
@@ -161,8 +179,11 @@ Known failure:
 - Full follow-up resolution pass rate: requires running the follow-up suite.
 - Full weak JD over-creation rate: requires running the opportunity or core-safety
   suite.
+- ART training results: not measured because no ART training run has been completed.
+- Trained model id: not available.
+- Before/after ART eval delta: not available.
 
-## Next Eval Suites To Run
+## Next Suites To Run
 
 ```bash
 npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
