@@ -102,7 +102,7 @@ not a training dataset.
 
 ## Online Demo
 
-Online demo: planned / pending deployment.
+Online demo: [https://career-opportunity-agent-demo.onrender.com/demo](https://career-opportunity-agent-demo.onrender.com/demo)
 
 The demo mode is intended for portfolio review, not production SaaS. It shows seeded
 career data, memory-safety behavior, weak-JD guardrails, opportunity-light object
@@ -113,7 +113,7 @@ Demo boundaries:
 - Mock provider by default.
 - DeepSeek is disabled unless explicitly enabled for a controlled deployment.
 - Do not enter private personal information.
-- Demo data may be reset periodically.
+- Demo data may reset on redeploy or service restart.
 - Eval and ART artifacts are linked as public evidence, not training results.
 
 ## Documentation Map
