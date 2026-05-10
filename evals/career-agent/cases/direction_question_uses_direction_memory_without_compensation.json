@@ -1,0 +1,25 @@
+{
+  "id": "direction_question_uses_direction_memory_without_compensation",
+  "title": "方向选择问题使用方向记忆但不夹带薪资约束",
+  "provider": "deepseek-flash",
+  "turns": [
+    {
+      "user": "我现在应该优先看 Agent 后训练岗位，还是也考虑纯预训练？"
+    }
+  ],
+  "expectations": {
+    "expectedActionLevel": ["answer_only"],
+    "expectedEvidenceSufficiency": ["none"],
+    "shouldCreateEvidence": false,
+    "shouldCreateOpportunity": false,
+    "shouldCreateDecision": false,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 0,
+    "maxOpenQuestions": 0,
+    "maxPendingActions": 0,
+    "mustCiteAny": ["Agent", "后训练", "短期目标", "长期目标"],
+    "mustNotCite": ["目标薪酬区间", "Demo Band A"],
+    "mustMentionAny": ["Agent", "后训练", "纯预训练", "优先", "业务闭环", "owner"],
+    "mustNotMention": ["已创建 Opportunity", "MemorySuggestion", "薪资"]
+  }
+}

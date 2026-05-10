@@ -1,0 +1,22 @@
+{
+  "id": "short_complete_jd_can_create_light_opportunity",
+  "title": "短完整 JD 可以创建轻量 Opportunity",
+  "provider": "deepseek-flash",
+  "turns": [
+    {
+      "user": "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；职责：负责 GRPO、Reward Model、评测体系、数据闭环和 AgentRun trace 分析；要求：熟悉 PPO / GRPO / DPO，有 Agent 应用上线经验；薪资/职级：Demo Band A，结构包含 base / bonus / equity-like incentive。请判断是否值得进入正式 Opportunity 分析。"
+    }
+  ],
+  "expectations": {
+    "expectedActionLevel": ["create_structured_objects"],
+    "expectedEvidenceSufficiency": ["sufficient"],
+    "shouldCreateEvidence": true,
+    "shouldCreateOpportunity": true,
+    "shouldCreateDecision": true,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 3,
+    "maxOpenQuestions": 5,
+    "mustMentionAny": ["星桥", "Reliable Tutor Agent", "GRPO", "Reward", "Demo Band A"],
+    "mustNotMention": ["直接写入 Memory", "生成/更新 9 条 active risks"]
+  }
+}

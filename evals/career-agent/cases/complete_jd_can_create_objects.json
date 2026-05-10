@@ -1,0 +1,22 @@
+{
+  "id": "complete_jd_can_create_objects",
+  "title": "完整 JD 可以创建结构化对象",
+  "provider": "deepseek-flash",
+  "turns": [
+    {
+      "user": "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；岗位职责：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier，构建评测、数据闭环和 AgentRun trace 分析；薪资/职级：Demo Band A，结构包含 base / bonus / equity-like incentive；要求熟悉 PPO/GRPO/DPO。"
+    }
+  ],
+  "expectations": {
+    "expectedActionLevel": ["create_structured_objects"],
+    "expectedEvidenceSufficiency": ["sufficient"],
+    "shouldCreateEvidence": true,
+    "shouldCreateOpportunity": true,
+    "shouldCreateDecision": true,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 3,
+    "maxOpenQuestions": 5,
+    "mustMentionAny": ["Agent", "GRPO", "Reward", "Demo Band A", "团队"],
+    "mustNotMention": ["直接写入 Memory", "生成/更新 9 条 active risks"]
+  }
+}

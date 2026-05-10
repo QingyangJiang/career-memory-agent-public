@@ -1,0 +1,148 @@
+{
+  "date": "2026-05-10",
+  "claim_level": "public_snapshot_not_full_benchmark",
+  "positioning": "memory-first, evidence-grounded, evaluation-driven Career Agent",
+  "privacy_status": "privacy_sanitized_with_synthetic_persona_labels",
+  "runs": [
+    {
+      "name": "mock-smoke",
+      "provider": "mock",
+      "model": "MockLLMProvider",
+      "command": "npm run eval:career-agent -- --provider=mock-smoke --maxCases=3",
+      "cases": 3,
+      "passed": 3,
+      "failed": 0,
+      "hard_assertion_pass_rate": 1.0,
+      "average_soft_score": 4.48,
+      "avg_latency_ms": 269,
+      "p95_latency_ms": 465,
+      "timeout_count": 0,
+      "known_failures": []
+    },
+    {
+      "name": "mock-core-safety",
+      "provider": "mock",
+      "model": "MockLLMProvider",
+      "command": "npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety",
+      "cases": 5,
+      "passed": 4,
+      "failed": 1,
+      "hard_assertion_pass_rate": 0.99,
+      "average_soft_score": 4.5,
+      "timeout_count": 0,
+      "known_failures": [
+        "needs_external_source policy mismatch on evidence sufficiency"
+      ]
+    },
+    {
+      "name": "targeted-deepseek-checks",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "commands": [
+        "npm run eval:career-agent -- --provider=deepseek-flash --case=weak_jd_should_not_create_objects",
+        "npm run eval:career-agent -- --provider=deepseek-flash --case=follow_up_uses_context"
+      ],
+      "cases": 2,
+      "passed": 2,
+      "failed": 0,
+      "known_failures": []
+    },
+    {
+      "name": "deepseek-memory",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "command": "npm run eval:career-agent -- --provider=deepseek-flash --suite=memory",
+      "cases": 4,
+      "passed": 3,
+      "failed": 1,
+      "hard_assertion_pass_rate": 0.99,
+      "average_soft_score": 4.52,
+      "avg_latency_ms": 9291,
+      "p95_latency_ms": 28362,
+      "timeout_count": 0,
+      "known_failures": [
+        "compensation_question_uses_memory_without_dump legacy string citation mismatch; source-object memory id fixture passed"
+      ]
+    },
+    {
+      "name": "deepseek-follow-up",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "command": "npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up",
+      "cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "hard_assertion_pass_rate": 1.0,
+      "average_soft_score": 4.54,
+      "avg_latency_ms": 17855,
+      "p95_latency_ms": 19479,
+      "timeout_count": 0,
+      "known_failures": []
+    },
+    {
+      "name": "deepseek-opportunity-light",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "command": "npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-light",
+      "cases": 3,
+      "passed": 3,
+      "failed": 0,
+      "hard_assertion_pass_rate": 1.0,
+      "average_soft_score": 4.49,
+      "avg_latency_ms": 7722,
+      "p95_latency_ms": 24043,
+      "timeout_count": 0,
+      "known_failures": []
+    },
+    {
+      "name": "deepseek-diagnostic-3-case",
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "command": "npm run eval:career-agent -- --provider=deepseek-flash --maxCases=3",
+      "cases": 3,
+      "passed": 0,
+      "failed": 3,
+      "hard_assertion_pass_rate": 0.892,
+      "average_soft_score": 4.35,
+      "avg_latency_ms": 26945,
+      "p95_latency_ms": 60000,
+      "timeout_count": 1,
+      "known_failures": [
+        "compare_opportunities action-level mismatch",
+        "compensation_question_uses_memory_without_dump citation mismatch",
+        "complete_jd_can_create_objects timeout diagnostic"
+      ]
+    }
+  ],
+  "available_suites_not_in_public_snapshot": [
+    "ci-smoke",
+    "opportunity-heavy"
+  ],
+  "ci_path": {
+    "database_setup": "npx prisma db push && npm run seed",
+    "provider": "mock",
+    "suite": "ci-smoke",
+    "real_provider_required": false
+  },
+  "source_object_grounding_status": {
+    "observation_supported": true,
+    "schema_supported": true,
+    "stable_memory_fixture": "mem_demo_compensation_target_current",
+    "latest_memory_preference": "diagnostic_only_pending_ordering_metadata"
+  },
+  "not_measured": [
+    "cost",
+    "aggregate_json_validity",
+    "mimo_results",
+    "openai_compatible_provider_results",
+    "art_training_results",
+    "trained_model_id",
+    "before_after_art_eval_delta"
+  ],
+  "art_status": {
+    "art_dependency": false,
+    "training_run": false,
+    "trained_model_id": null,
+    "model_improvement_claim": false
+  }
+}
