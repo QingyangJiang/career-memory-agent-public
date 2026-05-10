@@ -71,9 +71,9 @@ reward in training.
 
 ## Current Exporter Heuristic
 
-The current TypeScript exporter does not implement the component-level reward above.
-It emits `reward_model: "simplified_scalar_v0"` and a `derived_scalar_reward` for
-export inspection only.
+The current TypeScript exporter does not implement the component-level reward above. It
+emits `reward_model: "simplified_scalar_v0"` and a `derived_scalar_reward` for export
+inspection only.
 
 `simplified_scalar_v0` combines:
 
@@ -88,6 +88,23 @@ model-quality improvement claim.
 
 Component-level rewards remain future work and should not be reported as implemented
 training infrastructure.
+
+## Citation Grounding Reward Direction
+
+Citation string matching should not become the only reward signal. Exact phrase checks
+are useful diagnostics, but they are brittle when memories are updated, merged, or
+rewritten.
+
+Future component-level reward should prefer source-object grounding:
+
+- reward citing the correct Memory or Evidence object ids;
+- reward preferring the latest relevant Memory when memories conflict;
+- penalize forbidden Memory or Evidence refs;
+- track Memory type grounding separately from answer wording.
+
+Current citation mismatch remains a diagnostic and taxonomy penalty. It is not evidence
+that a citation-grounding reward has been implemented, and it is not an ART training
+result.
 
 ## Failure Taxonomy Penalties
 
@@ -172,9 +189,9 @@ Reward emphasis:
 ## Open Questions
 
 - How much should citation string matching influence reward versus broader semantic
-  grounding?
+grounding?
 - Should runtime timeouts be excluded from training reward and tracked only as
-  infrastructure failures?
+infrastructure failures?
 - How should human preference labels complement hard assertions and rule-based soft
-  scores?
+scores?
 - How large should each suite be before using it as a training curriculum bucket?

@@ -110,6 +110,62 @@ steps are serialized. Trace completeness makes failures debuggable: reviewers ca
 inspect classification, policy guard corrections, action planning, provider metadata,
 created objects, and skipped reasons.
 
+## From String Citation Checks To Source-object Grounding
+
+Some current citation assertions still use string matching, such as `mustCiteAny`. This
+is useful as a lightweight diagnostic, but it is brittle for long-running memory
+agents. A compensation memory can evolve from `目标总包 100w+` to `目标总包
+150w+`; string checks can then punish the agent for citing a newer or more precise
+object even when the grounding behavior is directionally correct.
+
+Source-object grounding is a better reliability target because it checks whether the
+assistant used the right underlying Memory or Evidence object, not whether the final
+rendered text repeated an exact phrase. It also makes failures easier to debug: the
+reviewer can inspect object ids, types, recency, and forbidden refs directly from the
+trace.
+
+Recommended future hard assertions:
+
+- `mustCiteMemoryIds`: require citations or context refs to include specific Memory
+  ids.
+- `mustCiteEvidenceIds`: require specific Evidence ids.
+- `mustPreferLatestMemory`: prefer the newest relevant Memory when older and newer
+  memories conflict.
+- `mustNotCiteMemoryIds`: forbid irrelevant, stale, or privacy-sensitive Memory ids.
+- `mustCiteMemoryType`: require a grounding object of a specific memory type such as
+  `Preference`, `Constraint`, or `CareerGoal`.
+
+Citation mismatch should continue to map to `ERROR_CITATION_MISMATCH`, but the failure
+detail should distinguish exact-string mismatch from source-object mismatch. That
+distinction matters for triage: a wrong source object is a grounding failure; a wording
+change around the right object is usually a weaker diagnostic.
+
+This design also reduces reward hacking. If reward depends only on output strings, a
+model can learn to repeat known phrases without using the right evidence. Source-object
+grounding rewards the agent for selecting the right auditable context object and
+avoiding forbidden ones.
+
+## Opportunity Suite Split
+
+The current `complete_jd_can_create_objects` case has exposed a 60s timeout in a
+DeepSeek diagnostic run. That failure is useful, but it mixes two concerns: lightweight
+behavior correctness and heavy workflow latency.
+
+Planned suite split:
+
+| Suite | Purpose | Example cases |
+|---|---|---|
+| `opportunity-light` | Short or staged JD inputs that validate behavior correctness, object precision, and trace shape. | weak JD precision, short complete JD, multi-turn evidence completion |
+| `opportunity-heavy` | Longer complete JD workflows that validate latency, timeout behavior, token pressure, trace completeness, and workflow bottlenecks. | long complete JD / timeout diagnostic cases |
+
+Timeouts should be treated as infrastructure or orchestration diagnostics by default.
+They can expose workflow bottlenecks, provider latency, prompt size, or token budget
+issues, but they should not automatically be treated as direct model-quality failures.
+
+`opportunity-heavy` should not pollute the pass rate of `opportunity-light`. The light
+suite should remain suitable for quick regression checks, while the heavy suite should
+be read as latency and workflow diagnostic evidence.
+
 ## Provider Comparison Plan
 
 The harness supports a provider-based LLM boundary so the same cases can be run against
@@ -153,7 +209,7 @@ The current taxonomy groups failures into actionable engineering categories:
 - `ERROR_RUNTIME_TIMEOUT`: a case or turn timed out before producing a usable
   observation.
 - `ERROR_ROUTER_POLICY_MISMATCH`: semantic router, post-policy guard, action level,
-  evidence sufficiency, or artifact plan did not match the expected policy.
+evidence sufficiency, or artifact plan did not match the expected policy.
 
 ## Relation To Reliable Agents And Feedback Loops
 
