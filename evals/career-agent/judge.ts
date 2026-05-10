@@ -38,7 +38,20 @@ export interface EvalExpectations {
   mustNotMention?: string[];
   mustCiteAny?: string[];
   mustNotCite?: string[];
+  mustCiteMemoryIds?: string[];
+  mustCiteEvidenceIds?: string[];
+  mustNotCiteMemoryIds?: string[];
+  mustCiteMemoryType?: string;
+  mustPreferLatestMemory?: boolean;
   perTurn?: Array<Partial<EvalExpectations>>;
+}
+
+export interface CitationRefObservation {
+  source: "citation" | "context";
+  entityType: string;
+  entityId: string;
+  title?: string;
+  memoryType?: string;
 }
 
 export interface TurnObservation {
@@ -78,6 +91,11 @@ export interface TurnObservation {
   resolvedReference?: string;
   citationTitles: string[];
   contextRefTitles: string[];
+  citationIds: string[];
+  citationEntityTypes: string[];
+  contextRefIds: string[];
+  contextRefEntityTypes: string[];
+  citationRefs: CitationRefObservation[];
 }
 
 export interface CaseObservation {
@@ -113,6 +131,17 @@ function includesAll(text: string, items: string[] | undefined) {
 
 function addAssertion(list: JudgeResult["hardAssertions"], name: string, passed: boolean, detail: string) {
   list.push({ name, passed, detail });
+}
+
+function citedIds(turn: TurnObservation, entityType: string) {
+  return turn.citationRefs.filter((ref) => ref.entityType === entityType).map((ref) => ref.entityId);
+}
+
+function citationDetail(turn: TurnObservation, entityType: string) {
+  const refs = turn.citationRefs
+    .filter((ref) => ref.entityType === entityType)
+    .map((ref) => `${ref.entityId}${ref.title ? `:${ref.title}` : ""}`);
+  return refs.length ? refs.join(",") : "none";
 }
 
 function checkTurn(expectations: EvalExpectations, turn: TurnObservation, label: string, assertions: JudgeResult["hardAssertions"]) {
@@ -166,6 +195,56 @@ function checkTurn(expectations: EvalExpectations, turn: TurnObservation, label:
       `${label}: mustNotCite`,
       forbidden.length === 0,
       `forbidden=${forbidden.join(",")}; actual=${[...turn.citationTitles, ...turn.contextRefTitles].join(",")}`
+    );
+  }
+  if (expectations.mustCiteMemoryIds?.length) {
+    const actual = new Set(citedIds(turn, "memory"));
+    const missing = expectations.mustCiteMemoryIds.filter((id) => !actual.has(id));
+    addAssertion(
+      assertions,
+      `${label}: mustCiteMemoryIds`,
+      missing.length === 0,
+      `missing=${missing.join(",") || "none"}; actual=${citationDetail(turn, "memory")}`
+    );
+  }
+  if (expectations.mustCiteEvidenceIds?.length) {
+    const actual = new Set(citedIds(turn, "evidence"));
+    const missing = expectations.mustCiteEvidenceIds.filter((id) => !actual.has(id));
+    addAssertion(
+      assertions,
+      `${label}: mustCiteEvidenceIds`,
+      missing.length === 0,
+      `missing=${missing.join(",") || "none"}; actual=${citationDetail(turn, "evidence")}`
+    );
+  }
+  if (expectations.mustNotCiteMemoryIds?.length) {
+    const actual = new Set(citedIds(turn, "memory"));
+    const forbidden = expectations.mustNotCiteMemoryIds.filter((id) => actual.has(id));
+    addAssertion(
+      assertions,
+      `${label}: mustNotCiteMemoryIds`,
+      forbidden.length === 0,
+      `forbidden=${forbidden.join(",") || "none"}; actual=${citationDetail(turn, "memory")}`
+    );
+  }
+  if (expectations.mustCiteMemoryType) {
+    const memoryTypes = turn.citationRefs
+      .filter((ref) => ref.entityType === "memory")
+      .map((ref) => ref.memoryType)
+      .filter(Boolean);
+    addAssertion(
+      assertions,
+      `${label}: mustCiteMemoryType`,
+      memoryTypes.includes(expectations.mustCiteMemoryType),
+      `expected=${expectations.mustCiteMemoryType}; actual=${memoryTypes.join(",") || "none"}`
+    );
+  }
+  if (expectations.mustPreferLatestMemory) {
+    addAssertion(
+      assertions,
+      `${label}: mustPreferLatestMemory`,
+      false,
+      "latest-memory ordering metadata is not available yet; add stable memory fixture metadata before enabling this assertion"
     );
   }
   if (expectations.expectedEvidenceSufficiency?.length) {
@@ -276,7 +355,7 @@ export function judgeCase(observation: CaseObservation, expectations: EvalExpect
   if (failed.some((item) => /Memory|memorySuggestion/.test(item.name))) errorTaxonomy.add("ERROR_MEMORY_POLLUTION");
   if (failed.some((item) => /maxRisks|maxOpenQuestions|maxPendingActions/.test(item.name))) errorTaxonomy.add("ERROR_TOO_MANY_FOLLOWUPS");
   if (failed.some((item) => /mustMention/.test(item.name))) errorTaxonomy.add("ERROR_MISSING_ANSWER");
-  if (failed.some((item) => /mustCiteAny|mustNotCite/.test(item.name))) errorTaxonomy.add("ERROR_CITATION_MISMATCH");
+  if (failed.some((item) => /mustCiteAny|mustNotCite|mustCiteMemoryIds|mustCiteEvidenceIds|mustNotCiteMemoryIds|mustCiteMemoryType|mustPreferLatestMemory/.test(item.name))) errorTaxonomy.add("ERROR_CITATION_MISMATCH");
   if (observation.timedOut || failed.some((item) => /timed out/i.test(item.detail))) errorTaxonomy.add("ERROR_RUNTIME_TIMEOUT");
   if (failed.some((item) => /expectedActionLevel|expectedEvidenceSufficiency|expectedArtifactTypes/.test(item.name))) errorTaxonomy.add("ERROR_ROUTER_POLICY_MISMATCH");
   if (failed.some((item) => /expectedIntent|expectedFollowUpType|mustUseConversationContext/.test(item.name))) errorTaxonomy.add("ERROR_CONTEXT_MISMATCH");

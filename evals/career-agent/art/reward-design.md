@@ -106,6 +106,13 @@ Current citation mismatch remains a diagnostic and taxonomy penalty. It is not e
 that a citation-grounding reward has been implemented, and it is not an ART training
 result.
 
+The current eval harness has a lightweight source-object grounding pilot: observations
+can record citation/context ids and entity types, and the expectation schema supports
+`mustCiteMemoryIds`, `mustCiteEvidenceIds`, `mustNotCiteMemoryIds`, and
+`mustCiteMemoryType`. The compensation-memory case uses `mustCiteMemoryType` as a
+transitional check while stable memory-id fixtures remain future work. String citation
+checks are retained as diagnostics during this transition.
+
 ## Failure Taxonomy Penalties
 
 Suggested initial penalties:

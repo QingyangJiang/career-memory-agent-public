@@ -8,6 +8,7 @@ export bridge.
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)]()
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)]()
 [![SQLite](https://img.shields.io/badge/SQLite-local--first-003B57)]()
+[![CI](https://github.com/QingyangJiang/career-opportunity-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/QingyangJiang/career-opportunity-agent/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)]()
 
 ## 30-second Summary
@@ -38,12 +39,16 @@ report records actual local runs only; it is not a full benchmark.
 | Mock `core-safety` suite | 4/5 PASS | Exposes Mock evidence-sufficiency mismatch on external-source request |
 | Targeted DeepSeek `weak_jd_should_not_create_objects` | PASS | Weak JD did not over-create objects on rerun |
 | Targeted DeepSeek `follow_up_uses_context` | PASS | Follow-up context case passed |
+| DeepSeek `follow-up` suite | 0/1 FAIL | 2026-05-10 run exposed `expectedFollowUpType` drift |
+| DeepSeek `opportunity-light` suite | 3/3 PASS | Short/staged JD behavior checks passed |
 | DeepSeek `memory` suite | 3/4 PASS | Exposes citation mismatch on compensation memory retrieval |
 | Diagnostic DeepSeek 3-case run | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and complete JD timeout |
 
 Known failures are preserved because they are useful reliability evidence:
 
 - `needs_external_source`: Mock router policy mismatch on evidence sufficiency.
+- `follow_up_uses_context`: latest DeepSeek follow-up suite run returned
+  `ask_for_next_steps` instead of the expected follow-up type.
 - `compare_opportunities`: DeepSeek action-level mismatch.
 - `compensation_question_uses_memory_without_dump`: citation mismatch.
 - `complete_jd_can_create_objects`: 60s timeout diagnostic.
@@ -105,6 +110,8 @@ not a training dataset.
   report with summary, known failures, unmeasured metrics, and next suites.
 - [Evaluation report index](evals/career-agent/reports/README.md): how generated local
   reports relate to committed public snapshots.
+- [Latest report manifest](evals/career-agent/reports/latest.manifest.json):
+  machine-readable metadata for the committed public snapshot.
 - [ART integration bridge](docs/art-integration.md): trajectory schema, export phases,
   and non-goals.
 - [ART reward design](evals/career-agent/art/reward-design.md): proposed
@@ -144,6 +151,18 @@ npm run build
 npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
 ```
 
+Minimal reviewer path:
+
+```bash
+npm run typecheck
+npm run build
+npm run art:export -- --example
+npm run eval:career-agent -- --provider=mock-smoke --suite=ci-smoke
+```
+
+`ci-smoke` is a stable local regression path for CI and reviewer checks. It is not a
+full benchmark and does not replace the broader eval suites.
+
 Additional eval commands:
 
 ```bash
@@ -152,16 +171,16 @@ npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
 npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
 ```
 
-Planned opportunity split:
+Supported opportunity split:
 
 ```bash
 npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-light
 npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-heavy
 ```
 
-The planned split is documented in
-[docs/evaluation-design.md](docs/evaluation-design.md). It is intended to keep
-lightweight behavior checks separate from long-JD latency and timeout diagnostics.
+The split keeps lightweight behavior checks separate from long-JD latency and timeout
+diagnostics. These suites are available, but their DeepSeek results are not part of the
+committed public snapshot unless explicitly reported.
 
 ## Architecture Overview
 
@@ -242,6 +261,9 @@ Implemented:
 - Agent run trace view.
 - Case-driven evaluation harness.
 - ART-ready trajectory export bridge.
+- Stable `ci-smoke` regression suite.
+- Opportunity-light / opportunity-heavy suite split.
+- Initial source-object grounding assertion pilot.
 
 Planned:
 
@@ -249,8 +271,7 @@ Planned:
 - Xiaomi MiMo provider.
 - OpenAI-compatible provider interface.
 - Provider metadata comparison.
-- Opportunity-light / opportunity-heavy suite split.
-- Source-object citation grounding assertions.
+- Stable memory-id fixtures for source-object citation assertions.
 
 Known limitations:
 

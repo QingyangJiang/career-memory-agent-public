@@ -1,0 +1,22 @@
+{
+  "id": "short_complete_jd_can_create_light_opportunity",
+  "title": "短完整 JD 可以创建轻量 Opportunity",
+  "provider": "deepseek-flash",
+  "turns": [
+    {
+      "user": "完整 JD：公司/业务线：豆包教育业务线；团队和 owner 空间：教育 Agent 后训练团队，岗位需要负责从数据、评测到线上效果的闭环优化；岗位职责：负责 GRPO、Reward Model、评测体系和数据闭环；任职要求：熟悉 PPO/GRPO/DPO，有线上 Agent 优化经验；薪资/职级：70k-90k，15 薪。请判断是否值得进入正式 Opportunity 分析。"
+    }
+  ],
+  "expectations": {
+    "expectedActionLevel": ["create_structured_objects"],
+    "expectedEvidenceSufficiency": ["sufficient"],
+    "shouldCreateEvidence": true,
+    "shouldCreateOpportunity": true,
+    "shouldCreateDecision": true,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 3,
+    "maxOpenQuestions": 5,
+    "mustMentionAny": ["豆包", "教育 Agent", "GRPO", "Reward", "薪资"],
+    "mustNotMention": ["直接写入 Memory", "生成/更新 9 条 active risks"]
+  }
+}

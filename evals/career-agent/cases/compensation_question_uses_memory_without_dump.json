@@ -18,6 +18,7 @@
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
     "mustCiteAny": ["目标总包 100w+"],
+    "mustCiteMemoryType": "Constraint",
     "mustNotCite": ["Agent", "后训练", "GRPO", "Reward", "Verifier", "K12", "高英评批", "初中数学"],
     "mustMentionAny": ["HR", "期望薪资", "总包", "base", "年终", "股票", "100w"],
     "mustNotMention": ["Agentic RL", "GRPO", "Reward Model", "Verifier", "纯预训练", "已创建 Opportunity", "MemorySuggestion"]

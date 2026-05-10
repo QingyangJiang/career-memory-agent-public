@@ -1,6 +1,6 @@
 # Career Agent Evaluation Report
 
-Latest local run date: 2026-05-09
+Latest local run date: 2026-05-10
 
 This committed report is the public snapshot for the portfolio repo. It records actual
 local eval runs only. It does not include fabricated provider benchmarks, cost
@@ -9,6 +9,10 @@ estimates, or metrics that were not emitted by the harness.
 `evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local
 artifacts and are gitignored. They are useful for local reproduction, but this file is
 the stable report index committed to the repository.
+
+Machine-readable metadata for this public snapshot is committed at
+[`latest.manifest.json`](latest.manifest.json). The manifest is report metadata, not an
+eval result generator and not a training dataset.
 
 ART trajectory exports generated from local reports are also local artifacts by
 default. The committed weak-JD trajectory fixture under
@@ -22,6 +26,8 @@ default. The committed weak-JD trajectory fixture under
 | Mock core-safety | `mock/MockLLMProvider` | 5 | 4/5 PASS | Exposes known external-source router policy mismatch. |
 | DeepSeek diagnostic 3-case | `deepseek/deepseek-v4-flash` | 3 | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and timeout. |
 | Targeted DeepSeek checks | `deepseek/deepseek-v4-flash` | 2 targeted cases | PASS on recorded reruns | Weak-JD and follow-up targeted checks passed on rerun. |
+| DeepSeek follow-up suite | `deepseek/deepseek-v4-flash` | 1 | 0/1 FAIL | Latest run exposes follow-up type drift. |
+| DeepSeek opportunity-light suite | `deepseek/deepseek-v4-flash` | 3 | 3/3 PASS | Short/staged JD behavior checks passed. |
 | DeepSeek memory suite | `deepseek/deepseek-v4-flash` | 4 | 3/4 PASS | Exposes compensation citation mismatch. |
 
 ## Mock Smoke
@@ -149,8 +155,8 @@ Provider/model: `deepseek/deepseek-v4-flash`
 | Failed cases | 1 |
 | Hard assertion pass rate | 99.0% |
 | Average soft score | 4.52 / 5 |
-| Average latency | 8,365ms |
-| P95 latency | 17,416ms |
+| Average latency | 9,096ms |
+| P95 latency | 22,944ms |
 | Timeout count | 0 |
 
 Known failure:
@@ -159,11 +165,59 @@ Known failure:
 citation/context containing `目标总包 100w+`, actual context cited `目标总包
 150w+` and unrelated refs.
 
+## DeepSeek Follow-up Suite
+
+Command:
+
+```bash
+npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
+```
+
+Provider/model: `deepseek/deepseek-v4-flash`
+
+| Metric | Result |
+|---|---:|
+| Cases run | 1 |
+| Passed cases | 0 |
+| Failed cases | 1 |
+| Hard assertion pass rate | 95.0% |
+| Average soft score | 4.52 / 5 |
+| Average latency | 13,660ms |
+| P95 latency | 14,435ms |
+| Timeout count | 0 |
+
+Known failure:
+
+- `follow_up_uses_context`: `ERROR_CONTEXT_MISMATCH`; expected follow-up type did not
+match, actual was `ask_for_next_steps`.
+
+## DeepSeek Opportunity-light Suite
+
+Command:
+
+```bash
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-light
+```
+
+Provider/model: `deepseek/deepseek-v4-flash`
+
+| Metric | Result |
+|---|---:|
+| Cases run | 3 |
+| Passed cases | 3 |
+| Failed cases | 0 |
+| Hard assertion pass rate | 100.0% |
+| Average soft score | 4.49 / 5 |
+| Average latency | 7,722ms |
+| P95 latency | 24,043ms |
+| Timeout count | 0 |
+
 ## Known Failures
 
 | Area | Case | Failure |
 |---|---|---|
 | Mock core-safety | `needs_external_source` | `ERROR_ROUTER_POLICY_MISMATCH`; expected `evidenceSufficiency=none`, actual was `partial`. |
+| DeepSeek follow-up suite | `follow_up_uses_context` | Follow-up type mismatch; actual was `ask_for_next_steps`. |
 | DeepSeek diagnostic | `compare_opportunities` | Action-level mismatch; actual was `answer_with_info_gaps`. |
 | DeepSeek diagnostic | `compensation_question_uses_memory_without_dump` | Citation mismatch; expected `目标总包 100w+`, actual context included `目标总包 150w+` and other refs. |
 | DeepSeek diagnostic | `complete_jd_can_create_objects` | Runtime timeout after 60,000ms. |
@@ -189,15 +243,18 @@ suite.
 npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
 npm run eval:career-agent -- --provider=deepseek-flash --suite=core-safety
 npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-light
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-heavy
 npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
 npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
 ```
 
-Planned suite split:
+Supported suite split:
 
-- `opportunity-light`: short or staged JD behavior-correctness checks.
+- `opportunity-light`: short or staged JD behavior-correctness checks; DeepSeek
+  2026-05-10 run passed 3/3.
 - `opportunity-heavy`: long JD latency, timeout, trace, and workflow-bottleneck
-diagnostics.
+diagnostics; not yet rerun after the split.
 
 ## Metrics To Track
 

@@ -1,9 +1,11 @@
 # Career Agent Evaluation Report Index
 
-Latest local run date: 2026-05-09
+Latest local run date: 2026-05-10
 
 This file is the committed public snapshot index. The full structured report lives in
 [reports/latest.md](reports/latest.md).
+Machine-readable metadata for the same snapshot lives in
+[reports/latest.manifest.json](reports/latest.manifest.json).
 
 `evals/career-agent/report.md` and `evals/career-agent/report.json` are generated local
 artifacts and are gitignored. They are useful for local reproduction, but they should
@@ -21,6 +23,8 @@ example-only and is not a training dataset.
 | Mock core-safety | `mock/MockLLMProvider` | 5 | 4/5 PASS | Exposes known external-source router policy mismatch. |
 | DeepSeek diagnostic 3-case | `deepseek/deepseek-v4-flash` | 3 | 0/3 PASS | Exposes action-level mismatch, citation mismatch, and timeout. |
 | Targeted DeepSeek checks | `deepseek/deepseek-v4-flash` | 2 targeted cases | PASS on recorded reruns | Weak-JD and follow-up targeted checks passed on rerun. |
+| DeepSeek follow-up suite | `deepseek/deepseek-v4-flash` | 1 | 0/1 FAIL | Latest run exposes follow-up type drift. |
+| DeepSeek opportunity-light suite | `deepseek/deepseek-v4-flash` | 3 | 3/3 PASS | Short/staged JD behavior checks passed. |
 | DeepSeek memory suite | `deepseek/deepseek-v4-flash` | 4 | 3/4 PASS | Exposes compensation citation mismatch. |
 
 ## Full Report
@@ -34,15 +38,17 @@ Read [reports/latest.md](reports/latest.md) for:
 - next suites to run;
 - metrics to track.
 
-Planned opportunity report split:
+Supported opportunity report split:
 
-- `opportunity-light`: behavior-correctness checks for short or staged JD cases.
+- `opportunity-light`: behavior-correctness checks for short or staged JD cases; the
+  2026-05-10 DeepSeek run passed 3/3.
 - `opportunity-heavy`: latency, timeout, trace, token, and workflow-bottleneck
-diagnostics for heavier JD workflows.
+diagnostics for heavier JD workflows; not yet rerun after the split.
 
 ## Known Failure Highlights
 
 - Mock core-safety `needs_external_source`: `ERROR_ROUTER_POLICY_MISMATCH`.
+- DeepSeek follow-up suite `follow_up_uses_context`: follow-up type mismatch.
 - DeepSeek diagnostic `compare_opportunities`: action-level mismatch.
 - DeepSeek diagnostic `compensation_question_uses_memory_without_dump`: citation
 mismatch.

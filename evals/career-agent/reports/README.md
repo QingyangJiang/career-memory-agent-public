@@ -19,10 +19,15 @@ run in the current workspace, not a stable public benchmark.
 
 - [`../sample-report.md`](../sample-report.md) is the committed public snapshot index.
 - [`latest.md`](latest.md) is the current hand-organized public report.
+- [`latest.manifest.json`](latest.manifest.json) is machine-readable metadata for the
+  same public snapshot.
 
 These reports preserve real recorded results and known failures. They should not be
 described as full benchmark evidence unless the exact command, provider, date, and
 limitations are included.
+
+The manifest is intended for future dashboards, CI summaries, or export tooling. It is
+not a training dataset and does not add any metrics beyond the committed public report.
 
 ## Not Claimed
 

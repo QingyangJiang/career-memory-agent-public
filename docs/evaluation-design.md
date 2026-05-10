@@ -124,16 +124,21 @@ rendered text repeated an exact phrase. It also makes failures easier to debug: 
 reviewer can inspect object ids, types, recency, and forbidden refs directly from the
 trace.
 
-Recommended future hard assertions:
+Implemented pilot fields:
 
 - `mustCiteMemoryIds`: require citations or context refs to include specific Memory
   ids.
 - `mustCiteEvidenceIds`: require specific Evidence ids.
-- `mustPreferLatestMemory`: prefer the newest relevant Memory when older and newer
-  memories conflict.
 - `mustNotCiteMemoryIds`: forbid irrelevant, stale, or privacy-sensitive Memory ids.
 - `mustCiteMemoryType`: require a grounding object of a specific memory type such as
   `Preference`, `Constraint`, or `CareerGoal`.
+- `mustPreferLatestMemory`: declared in the expectation schema, but it still needs
+  stable recency metadata before it should be enabled in committed cases.
+
+The first lightweight pilot is `compensation_question_uses_memory_without_dump`, which
+keeps the existing `mustCiteAny` string diagnostic and adds `mustCiteMemoryType:
+"Constraint"` as a transitional source-object check. Stable fixture ids are still
+needed before the suite should require concrete `mustCiteMemoryIds` values.
 
 Citation mismatch should continue to map to `ERROR_CITATION_MISMATCH`, but the failure
 detail should distinguish exact-string mismatch from source-object mismatch. That
@@ -151,7 +156,7 @@ The current `complete_jd_can_create_objects` case has exposed a 60s timeout in a
 DeepSeek diagnostic run. That failure is useful, but it mixes two concerns: lightweight
 behavior correctness and heavy workflow latency.
 
-Planned suite split:
+Supported suite split:
 
 | Suite | Purpose | Example cases |
 |---|---|---|
@@ -162,9 +167,9 @@ Timeouts should be treated as infrastructure or orchestration diagnostics by def
 They can expose workflow bottlenecks, provider latency, prompt size, or token budget
 issues, but they should not automatically be treated as direct model-quality failures.
 
-`opportunity-heavy` should not pollute the pass rate of `opportunity-light`. The light
-suite should remain suitable for quick regression checks, while the heavy suite should
-be read as latency and workflow diagnostic evidence.
+`opportunity-light` and `opportunity-heavy` are supported runner suites. The light
+suite should remain suitable for behavior-correctness regression checks, while the
+heavy suite should be read as latency and workflow diagnostic evidence.
 
 ## Provider Comparison Plan
 

@@ -26,6 +26,9 @@ board.
 - Keep local-first design unless explicitly asked otherwise.
 - Keep README interviewer-friendly; move deep explanations into `docs/`.
 - Format docs before finishing public-facing portfolio changes.
+- Keep CI on mock/local paths only; do not require `DEEPSEEK_API_KEY` for GitHub
+  Actions.
+- Treat `ci-smoke` as a stable regression path, not a full benchmark.
 - Keep the ART bridge optional; do not add ART as a required production dependency.
 - Do not claim ART training results unless real training logs, model id, before/after
   eval, and reward definition exist.
@@ -47,16 +50,22 @@ applicable:
 ```bash
 npm run typecheck
 npm run build
+npm run eval:career-agent -- --provider=mock-smoke --suite=ci-smoke
+```
+
+Run the broader mock suite when the change touches eval behavior:
+
+```bash
 npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
 ```
 
-If `DEEPSEEK_API_KEY` is available and the change affects LLM routing/evaluation, also
-run:
+If `DEEPSEEK_API_KEY` is available and the change affects LLM routing/evaluation,
+DeepSeek suites may be run manually or conditionally:
 
 ```bash
 npm run eval:career-agent -- --provider=deepseek-flash --suite=follow-up
 npm run eval:career-agent -- --provider=deepseek-flash --suite=memory
-npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity
+npm run eval:career-agent -- --provider=deepseek-flash --suite=opportunity-light
 ```
 
 Use `--maxCases=3` as a quick diagnostic option only; prefer named suites for
@@ -86,7 +95,16 @@ Hard assertions should protect critical invariants:
 - follow-up turns should not create objects unless explicitly requested;
 - temporary thoughts should not become long-term memory;
 - structured JSON should remain parseable;
+- source-object grounding checks should use memory/evidence ids when stable fixtures
+  exist;
 - AgentRun / AgentStep traces should remain inspectable.
+
+String citation checks are still valid diagnostics. Source-object grounding is an
+incremental hardening direction, not a wholesale replacement yet.
+
+`opportunity-light` covers short or staged JD behavior correctness. `opportunity-heavy`
+keeps long-JD latency and timeout diagnostics separate so they do not pollute the light
+suite pass rate.
 
 Soft scoring may evaluate:
 

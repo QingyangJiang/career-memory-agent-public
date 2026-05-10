@@ -56,6 +56,10 @@ npm run art:export -- --input evals/career-agent/report.json --output evals/care
 `evals/career-agent/report.json` and `evals/career-agent/report.md` are generated local
 artifacts and are ignored by Git.
 
+The committed report manifest at `evals/career-agent/reports/latest.manifest.json` is
+public report metadata. It can help future dashboards or export tooling locate the
+current snapshot, but it is not a training dataset and does not imply ART training.
+
 ## Boundary
 
 The committed weak-JD artifact is example-only. It is not a training dataset.

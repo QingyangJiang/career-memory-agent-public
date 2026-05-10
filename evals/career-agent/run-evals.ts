@@ -20,9 +20,10 @@ interface CliOptions {
   maxCases?: number;
 }
 
-type EvalSuite = "core-safety" | "follow-up" | "opportunity" | "memory";
+type EvalSuite = "ci-smoke" | "core-safety" | "follow-up" | "opportunity" | "opportunity-light" | "opportunity-heavy" | "memory";
 
 const EVAL_SUITES: Record<EvalSuite, string[]> = {
+  "ci-smoke": ["explicit_memory_update", "weak_jd_should_not_create_objects", "ordinary_chat_no_objects"],
   "core-safety": [
     "explicit_memory_update",
     "temporary_thought_not_memory",
@@ -38,13 +39,26 @@ const EVAL_SUITES: Record<EvalSuite, string[]> = {
     "compensation_question_uses_memory_without_dump"
   ],
   "follow-up": ["follow_up_uses_context"],
-  opportunity: ["weak_jd_should_not_create_objects", "complete_jd_can_create_objects", "multi_turn_evidence_completion"]
+  opportunity: [
+    "weak_jd_should_not_create_objects",
+    "short_complete_jd_can_create_light_opportunity",
+    "multi_turn_evidence_completion",
+    "complete_jd_can_create_objects"
+  ],
+  "opportunity-light": [
+    "weak_jd_should_not_create_objects",
+    "short_complete_jd_can_create_light_opportunity",
+    "multi_turn_evidence_completion"
+  ],
+  "opportunity-heavy": ["complete_jd_can_create_objects"]
 };
 
 const MOCK_SMOKE_CASE_ORDER = [
   "explicit_memory_update",
   "weak_jd_should_not_create_objects",
   "ordinary_chat_no_objects",
+  "short_complete_jd_can_create_light_opportunity",
+  "multi_turn_evidence_completion",
   "needs_external_source",
   "follow_up_uses_context",
   "temporary_thought_not_memory"
@@ -75,7 +89,7 @@ function parseArgs(): CliOptions {
     throw new Error(`Unsupported provider ${provider}. Use deepseek-flash or mock-smoke.`);
   }
   if (suite && !Object.hasOwn(EVAL_SUITES, suite)) {
-    throw new Error(`Unsupported suite ${suite}. Use core-safety, follow-up, opportunity, or memory.`);
+    throw new Error(`Unsupported suite ${suite}. Use ${Object.keys(EVAL_SUITES).join(", ")}.`);
   }
   return {
     provider,
@@ -214,6 +228,41 @@ function countPending(metadata: any) {
 
 export type EvalProviderConfig = LLMProviderConfig & { model: string };
 
+function asArray(value: unknown): any[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value : undefined;
+}
+
+function isString(value: string | undefined): value is string {
+  return typeof value === "string";
+}
+
+function inferMemoryType(summary: unknown) {
+  const text = stringValue(summary);
+  const prefix = text?.split(":").at(0)?.trim();
+  return prefix && /^[A-Za-z]+$/.test(prefix) ? prefix : undefined;
+}
+
+function citationRefObservation(source: "citation" | "context", item: any) {
+  const entityType = stringValue(item.entityType) ?? stringValue(item.kind);
+  const entityId = stringValue(item.entityId) ?? stringValue(item.id);
+  if (!entityType || !entityId) return null;
+  return {
+    source,
+    entityType,
+    entityId,
+    title: stringValue(item.title),
+    memoryType: entityType === "memory" ? inferMemoryType(item.summary) : undefined
+  };
+}
+
+function isCitationRefObservation(item: ReturnType<typeof citationRefObservation>): item is NonNullable<ReturnType<typeof citationRefObservation>> {
+  return item !== null;
+}
+
 async function observeCase(testCase: EvalCase, providerConfig: EvalProviderConfig): Promise<CaseObservation> {
   const { sendMessage } = await import("../../lib/chat/service");
   const { prisma } = await import("../../lib/db/prisma");
@@ -241,6 +290,12 @@ async function observeCase(testCase: EvalCase, providerConfig: EvalProviderConfi
     const created = metadata.createdObjects ?? {};
     const provider = metadata.provider ?? {};
     const conversationContext = metadata.conversationContext ?? {};
+    const citations = asArray(metadata.citations);
+    const contextRefs = asArray(metadata.contextRefs);
+    const citationRefs = [
+      ...citations.map((item) => citationRefObservation("citation", item)),
+      ...contextRefs.map((item) => citationRefObservation("context", item))
+    ].filter(isCitationRefObservation);
     const memoryAfter = await prisma.memory.count();
     turns.push({
       user: turn.user,
@@ -277,11 +332,16 @@ async function observeCase(testCase: EvalCase, providerConfig: EvalProviderConfi
       usedRecentMessagesCount: conversationContext.usedRecentMessagesCount ?? metadata.classification?.usedRecentMessagesCount,
       usedLastAssistantAnswer: conversationContext.usedLastAssistantAnswer ?? metadata.classification?.usedLastAssistantAnswer,
       resolvedReference: conversationContext.resolvedReference ?? metadata.classification?.resolvedReference,
-      citationTitles: (metadata.citations ?? []).map((item: any) => String(item.title ?? "")).filter(Boolean),
-      contextRefTitles: (metadata.contextRefs ?? [])
+      citationTitles: citations.map((item: any) => String(item.title ?? "")).filter(Boolean),
+      contextRefTitles: contextRefs
         .filter((item: any) => item.entityType === "memory")
         .map((item: any) => String(item.title ?? ""))
-        .filter(Boolean)
+        .filter(Boolean),
+      citationIds: citations.map((item: any) => stringValue(item.id)).filter(isString),
+      citationEntityTypes: citations.map((item: any) => stringValue(item.kind) ?? stringValue(item.entityType)).filter(isString),
+      contextRefIds: contextRefs.map((item: any) => stringValue(item.entityId) ?? stringValue(item.id)).filter(isString),
+      contextRefEntityTypes: contextRefs.map((item: any) => stringValue(item.entityType) ?? stringValue(item.kind)).filter(isString),
+      citationRefs
     });
   }
   return {
