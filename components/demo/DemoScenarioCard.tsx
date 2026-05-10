@@ -9,10 +9,11 @@ export interface DemoScenarioCardProps {
   goal: string;
   prompt: string;
   href?: string;
+  inspect?: string[];
   links?: Array<{ label: string; href: string }>;
 }
 
-export function DemoScenarioCard({ title, goal, prompt, href, links = [] }: DemoScenarioCardProps) {
+export function DemoScenarioCard({ title, goal, prompt, href, inspect = [], links = [] }: DemoScenarioCardProps) {
   const [copied, setCopied] = useState(false);
   const chatHref = href ?? `/chat?prefill=${encodeURIComponent(prompt)}`;
 
@@ -35,6 +36,16 @@ export function DemoScenarioCard({ title, goal, prompt, href, links = [] }: Demo
           <blockquote className="mt-4 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
             {prompt}
           </blockquote>
+        ) : null}
+        {inspect.length ? (
+          <div className="mt-4 rounded-md border border-teal-100 bg-teal-50/60 px-3 py-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-focus">What to inspect</p>
+            <ul className="mt-2 space-y-1 text-sm leading-6 text-slate-700">
+              {inspect.map((item) => (
+                <li key={item}>- {item}</li>
+              ))}
+            </ul>
+          </div>
         ) : null}
         {links.length ? (
           <div className="mt-4 space-y-1.5">

@@ -40,6 +40,11 @@ board.
 - Never expose provider API keys or `DEMO_RESET_TOKEN` to client components.
 - Demo scenario links must be manually verified; prefer `/chat?prefill=...` for new
   prefilled chats instead of treating `/chat/new` as a persisted thread id.
+- Test demo scenario links after changing `ChatWorkspace` or `DemoScenarioCard`.
+- Keep both the `DEMO_MODE` UI lock and the server-side demo guard active.
+- Public demo sessions must not be used to test private personal information.
+- Render or Railway demo deployments may cold start; keep this caveat in public demo
+  docs when applicable.
 - Demo reset endpoints must be gated by `DEMO_MODE`, `DEMO_RESET_ENABLED`, and token
   checks when a token is configured.
 - Keep the reset endpoint as a protected placeholder unless explicitly implementing a

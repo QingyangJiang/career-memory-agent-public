@@ -159,3 +159,27 @@ Before sharing the public demo URL:
 - Seed data contains no private personal information.
 - Reset strategy is decided and not exposed to ordinary users.
 - README demo URL is updated after deployment.
+
+## Manual QA Checklist
+
+Run these checks before sending the demo link to reviewers:
+
+- `/demo` opens.
+- `DemoBanner` is visible in demo mode.
+- Chat provider selector shows `Demo locked`.
+- Memory Safety scenario opens `/chat?prefill=...` with the prompt prefilled.
+- Memory Safety prompt sends successfully and only creates pending
+  `MemorySuggestion`, not direct durable `Memory`.
+- Weak JD scenario does not create Evidence, Opportunity, or Decision objects.
+- Opportunity-light scenario creates Evidence, Opportunity, and Decision objects.
+- AgentRun trace can be opened after meaningful work.
+- Latest eval report link opens.
+- Latest report manifest link opens.
+- Weak-JD example trajectory link opens.
+- DeepSeek is disabled in the public demo unless explicitly enabled for a controlled
+  deployment.
+- Input longer than `DEMO_MAX_INPUT_CHARS` is rejected by the UI and server guard.
+- Request limit is rejected after `DEMO_REQUEST_LIMIT_PER_SESSION`.
+- Reset endpoint is unavailable when disabled or when token validation fails.
+- Service restart or redeploy leaves database state consistent with the selected
+  storage route.

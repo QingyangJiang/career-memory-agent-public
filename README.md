@@ -108,15 +108,17 @@ The demo mode is intended for portfolio review, not production SaaS. It shows se
 career data, memory-safety behavior, weak-JD guardrails, opportunity-light object
 creation, AgentRun traces, eval reports, and the example-only ART-ready export fixture.
 Demo scenario cards open a prefilled chat through `/chat?prefill=...`.
+On Render free-tier deployments, the public demo may cold start.
 
 Demo boundaries:
 
-- Mock provider by default.
+- Mock provider by default; the public demo focuses on workflow and safety evidence.
 - DeepSeek is disabled unless explicitly enabled for a controlled deployment.
 - Do not enter private personal information.
 - Demo data may reset on redeploy or service restart.
 - Eval and ART artifacts are linked as public evidence, not training results.
-- Demo launch checklist lives in [docs/deployment-demo.md](docs/deployment-demo.md).
+- Demo launch and manual QA checklists live in
+  [docs/deployment-demo.md](docs/deployment-demo.md).
 
 ## Documentation Map
 

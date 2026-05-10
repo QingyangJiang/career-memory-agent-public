@@ -14,28 +14,38 @@ export default function DemoPage() {
           AgentRun traceability, evaluation reports, and ART-ready export artifacts.
           It is not a production SaaS environment and is not an auto-apply tool.
         </p>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          The public demo defaults to Mock provider. It demonstrates workflow,
+          guardrails, traceability, and evaluation artifacts, not real-model quality
+          unless DeepSeek is explicitly enabled in a controlled deployment. Do not
+          enter private personal information.
+        </p>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2">
         <DemoScenarioCard
           title="Memory Safety Demo"
           goal="Expected behavior: generate pending MemorySuggestion records, but do not write durable Memory directly."
+          inspect={["Pending MemorySuggestion records", "No direct durable Memory write"]}
           prompt="以后我优先看 Agentic RL / Post-training / Evaluation 岗位，纯预训练暂不作为主线。"
         />
         <DemoScenarioCard
           title="Weak JD Guardrail Demo"
           goal="Expected behavior: answer with missing information and avoid creating Evidence, Opportunity, or Decision objects."
+          inspect={["Agent Summary created objects", "No Evidence, Opportunity, or Decision created"]}
           prompt="帮我看看这个岗位：Agent 后训练，做 GRPO 和 Reward Model，感觉适合我吗？"
         />
         <DemoScenarioCard
           title="Opportunity-light Demo"
           goal="Expected behavior: create Evidence, Opportunity, and Decision from a short complete JD, with AgentRun trace available afterward."
+          inspect={["Evidence, Opportunity, and Decision objects", "AgentRun trace and AgentStep records"]}
           prompt={opportunityPrompt}
         />
         <DemoScenarioCard
           title="Eval / ART Bridge Demo"
           goal="Review the committed public eval snapshot and example-only ART-ready export fixture. These artifacts are not training results."
           prompt=""
+          inspect={["Latest report and machine-readable manifest", "Weak-JD example trajectory and export validation notes"]}
           links={[
             { label: "Latest eval report", href: "https://github.com/QingyangJiang/career-opportunity-agent/blob/main/evals/career-agent/reports/latest.md" },
             { label: "Latest report manifest", href: "https://github.com/QingyangJiang/career-opportunity-agent/blob/main/evals/career-agent/reports/latest.manifest.json" },

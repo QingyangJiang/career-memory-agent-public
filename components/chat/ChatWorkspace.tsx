@@ -1098,14 +1098,14 @@ export function ChatWorkspace({ initialThreadId }: { initialThreadId?: string })
   useEffect(() => {
     const prefill = searchParams.get("prefill");
     const queryMode = searchParams.get("mode") as CareerAgentMode | null;
-    if (!prefillApplied && prefill) {
+    if (!prefillApplied && isNewChat && !input && prefill) {
       setInput(prefill);
       setPrefillApplied(true);
     }
     if (queryMode && modeLabels.some((item) => item.value === queryMode)) {
       setMode(queryMode);
     }
-  }, [searchParams, prefillApplied]);
+  }, [searchParams, prefillApplied, isNewChat, input]);
 
   useEffect(() => {
     void fetch("/api/demo/config")
