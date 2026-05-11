@@ -1,0 +1,32 @@
+{
+  "id": "stale_memory_should_not_override_current_input",
+  "title": "旧记忆不能覆盖当前明确输入",
+  "provider": "deepseek-flash",
+  "turns": [
+    {
+      "user": "虽然我之前更偏工程化，但这次请按我当前想试 Research Scientist 方向来分析，不要用旧偏好直接否掉。"
+    }
+  ],
+  "expectations": {
+    "expectedActionLevel": ["answer_only"],
+    "expectedEvidenceSufficiency": ["none"],
+    "shouldCreateEvidence": false,
+    "shouldCreateOpportunity": false,
+    "shouldCreateDecision": false,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 0,
+    "maxOpenQuestions": 0,
+    "maxPendingActions": 0,
+    "mustMentionAny": ["当前", "Research Scientist", "旧偏好", "不会直接否掉"],
+    "mustNotMention": ["已创建 Opportunity", "已写入长期 Memory"]
+  },
+  "suites": ["memory-policy", "grounding-citation"],
+  "inputType": "stale_memory_conflict",
+  "evidenceSufficiency": "none",
+  "sideEffectPolicy": "none",
+  "rewardTargets": ["memory_safety", "source_grounding", "context_resolution", "answer_helpfulness", "trace_observability"],
+  "riskArea": "stale_memory_override",
+  "skillTargets": ["memory_relevance", "context_resolution"],
+  "rlTags": ["memory-policy", "grounding"],
+  "judgeRequired": true
+}

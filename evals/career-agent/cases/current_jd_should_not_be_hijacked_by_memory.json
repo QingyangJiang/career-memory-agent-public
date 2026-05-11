@@ -8,12 +8,56 @@
     }
   ],
   "expectations": {
-    "expectedCurrentInputType": ["job_description"],
-    "expectedConversationIntent": ["analyze_job", "analyze_evidence"],
+    "expectedCurrentInputType": [
+      "job_description"
+    ],
+    "expectedConversationIntent": [
+      "analyze_job",
+      "analyze_evidence"
+    ],
     "shouldCreateEvidence": true,
     "shouldCreateOpportunity": true,
     "maxMemorySuggestions": 0,
-    "mustMentionAny": ["内容运营", "运营专员", "内容上架", "GMV", "DSR", "Demo Band C", "不匹配", "不建议", "不优先"],
-    "mustNotMention": ["GRPO vs DPO", "reward 设计", "一面", "面试官", "Interview Prep", "后训练面试重点"]
-  }
+    "mustMentionAny": [
+      "内容运营",
+      "运营专员",
+      "内容上架",
+      "GMV",
+      "DSR",
+      "Demo Band C",
+      "不匹配",
+      "不建议",
+      "不优先"
+    ],
+    "mustNotMention": [
+      "GRPO vs DPO",
+      "reward 设计",
+      "一面",
+      "面试官",
+      "Interview Prep",
+      "后训练面试重点"
+    ]
+  },
+  "suites": [
+    "grounding-citation"
+  ],
+  "inputType": "jd_with_conflicting_memory",
+  "evidenceSufficiency": "partial",
+  "sideEffectPolicy": "none",
+  "rewardTargets": [
+    "memory_safety",
+    "source_grounding",
+    "context_resolution",
+    "answer_helpfulness",
+    "trace_observability"
+  ],
+  "riskArea": "stale_memory_override",
+  "skillTargets": [
+    "memory_relevance",
+    "grounding"
+  ],
+  "rlTags": [
+    "grounding",
+    "memory-policy"
+  ]
 }

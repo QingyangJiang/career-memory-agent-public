@@ -23,6 +23,10 @@ board.
 - Prefer small, focused, reviewable diffs.
 - Do not add production dependencies unless clearly justified.
 - Do not fabricate eval metrics or provider benchmark results.
+- Add or revise the relevant reward dimension before adding many new eval cases.
+- Every new non-demo eval case must declare `rewardTargets`.
+- Do not add case-only evals without reward mapping.
+- LLM Judge must remain opt-in and must not be required for CI.
 - Keep local-first design unless explicitly asked otherwise.
 - Keep README interviewer-friendly; move deep explanations into `docs/`.
 - Format docs before finishing public-facing portfolio changes.
@@ -140,3 +144,6 @@ Soft scoring may evaluate:
 - trace completeness.
 
 Never replace hard assertions with judge-only scoring.
+
+Reward dimensions are the objective; cases are coverage samples. Prefer improving the
+reward/scorer contract before expanding case volume.

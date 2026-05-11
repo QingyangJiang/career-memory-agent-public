@@ -1,7 +1,7 @@
 # Career Memory Agent
 
 A memory-first, evidence-grounded, evaluation-driven Career Agent with auditable
-agent traces, user-confirmed memory, case-driven evals, and an optional ART-ready
+agent traces, user-confirmed memory, reward-driven evals, and an optional ART-ready
 trajectory export bridge.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)]()
@@ -54,7 +54,8 @@ Reliable Agent Eval -> Failure Taxonomy -> Source-object Grounding
   and project material.
 - Object-creation guardrails for weak JD snippets and follow-up turns.
 - Persisted `AgentRun` / `AgentStep` traces for audit and debugging.
-- Case-driven eval harness with hard assertions, soft scores, and failure taxonomy.
+- Reward-driven eval harness with rule/model/hybrid scorers, hard assertions, soft
+  scores, and failure taxonomy.
 - Source-object grounding pilot for memory/evidence citation checks.
 - Optional ART-ready JSONL export with a clearly marked non-training reward heuristic.
 
@@ -118,6 +119,7 @@ npm run typecheck
 npm run build
 npm run art:export -- --example
 npm run eval:career-agent -- --provider=mock-smoke --suite=ci-smoke
+npm run eval:coverage
 npm run public:hygiene
 npm run public:links
 ```
@@ -136,6 +138,10 @@ Most reviewers only need:
 - [Reviewer guide](docs/reviewer-guide.md): 3-minute and 10-minute review paths.
 - [Status matrix](docs/status-matrix.md): implemented, partial, planned, and not
   measured scope.
+- [Reward / scorer design](docs/reward-scorer-design.md): reward dimensions,
+  rule/model/hybrid scorer split, hard-gate caps, and LLM-judge boundary.
+- [Case coverage matrix](evals/career-agent/case-coverage.md): reward dimension to
+  case coverage, CI/offline/RL curriculum mapping, and deprecated/demo case status.
 - [Architecture overview](docs/architecture.md): core objects and request lifecycle.
 - [Evaluation report](evals/career-agent/reports/latest.md): current public snapshot.
 - [Privacy sanitization](docs/privacy-sanitization.md): synthetic persona boundary.

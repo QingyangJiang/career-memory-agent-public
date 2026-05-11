@@ -8,6 +8,7 @@ prisma/dev.db-journal
 evals/career-agent/history/*.db
 evals/career-agent/report.json
 evals/career-agent/report.md
+evals/career-agent/.judge-cache/
 dist
 coverage
 tsconfig.tsbuildinfo

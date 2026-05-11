@@ -73,8 +73,22 @@ interface TrajectoryRecord {
     breakdown: NumberRecord;
   };
   failure_taxonomy: FailureTaxonomy[];
-  reward_model: "simplified_scalar_v0";
+  reward_model: "simplified_scalar_v0" | "component_scalar_v0";
+  reward_components: JsonRecord;
+  scalar_reward: number | null;
+  scalar_reward_policy: string;
+  hard_gate_passed: boolean;
+  scalar_capped: boolean;
+  scorer_sources: JsonRecord;
+  gate_failures: JsonRecord;
+  judge_scores: JsonRecord[];
   derived_scalar_reward: number;
+  reward_targets: string[];
+  risk_area?: string;
+  skill_targets: string[];
+  rl_tags: string[];
+  diagnostic_only: boolean;
+  demo_only: boolean;
   reward_notes: string[];
   notes: string[];
 }
@@ -89,6 +103,12 @@ interface EvalResult {
   case: {
     id: string;
     title?: string;
+    rewardTargets?: string[];
+    riskArea?: string;
+    skillTargets?: string[];
+    rlTags?: string[];
+    diagnosticOnly?: boolean;
+    demoOnly?: boolean;
   };
   observation: {
     provider?: string;
@@ -104,6 +124,8 @@ interface EvalResult {
     softScores: NumberRecord;
     averageSoftScore: number;
     errorTaxonomy: FailureTaxonomy[];
+    rewardBreakdown?: JsonRecord;
+    modelJudgeScores?: JsonRecord[];
   };
 }
 
@@ -253,7 +275,13 @@ function parseReport(raw: unknown): EvalReport {
         case: {
           id: asString(caseRecord.id),
           title:
-            typeof caseRecord.title === "string" ? caseRecord.title : undefined
+            typeof caseRecord.title === "string" ? caseRecord.title : undefined,
+          rewardTargets: asStringArray(caseRecord.rewardTargets),
+          riskArea: typeof caseRecord.riskArea === "string" ? caseRecord.riskArea : undefined,
+          skillTargets: asStringArray(caseRecord.skillTargets),
+          rlTags: asStringArray(caseRecord.rlTags),
+          diagnosticOnly: asBoolean(caseRecord.diagnosticOnly),
+          demoOnly: asBoolean(caseRecord.demoOnly)
         },
         observation: {
           provider:
@@ -292,7 +320,11 @@ function parseReport(raw: unknown): EvalReport {
           averageSoftScore: asNumber(judgement.averageSoftScore),
           errorTaxonomy: asStringArray(judgement.errorTaxonomy).filter(
             (item): item is FailureTaxonomy => item in TAXONOMY_PENALTY
-          )
+          ),
+          rewardBreakdown: isRecord(judgement.rewardBreakdown) ? judgement.rewardBreakdown : undefined,
+          modelJudgeScores: Array.isArray(judgement.modelJudgeScores)
+            ? judgement.modelJudgeScores.filter(isRecord)
+            : []
         }
       };
     })
@@ -318,13 +350,55 @@ function taxonomyPenalty(taxonomy: FailureTaxonomy[]): number {
 
 function rewardNotes(result: EvalResult): string[] {
   return [
-    "simplified_scalar_v0 is an export inspection heuristic, not a training reward implementation.",
-    "Component-level reward remains design work and is not implemented by this exporter.",
+    result.judgement.rewardBreakdown
+      ? "component_scalar_v0 comes from the eval reward contract and is still an inspection/eval signal, not ART training output."
+      : "simplified_scalar_v0 is an export inspection heuristic, not a training reward implementation.",
+    "No ART dependency added.",
+    "No ART training run.",
+    "No trained model id.",
+    "No before/after model improvement claim.",
+    "Exported JSONL is an eval-to-RL contract / inspection artifact, not a real training dataset unless real training metadata exists.",
     "No ART training run, trained model id, or model-quality improvement is implied.",
     result.observation.timedOut
       ? "Runtime timeout is treated as an infrastructure/orchestration diagnostic by default."
       : ""
   ].filter(Boolean);
+}
+
+function rewardBreakdown(result: EvalResult): JsonRecord | undefined {
+  return result.judgement.rewardBreakdown;
+}
+
+function rewardComponents(result: EvalResult): JsonRecord {
+  const breakdown = rewardBreakdown(result);
+  return isRecord(breakdown?.components) ? breakdown.components : {};
+}
+
+function scorerSources(result: EvalResult): JsonRecord {
+  return Object.fromEntries(
+    Object.entries(rewardComponents(result)).map(([name, component]) => [
+      name,
+      isRecord(component) ? asString(component.source, "unknown") : "unknown"
+    ])
+  );
+}
+
+function gateFailures(result: EvalResult): JsonRecord {
+  return Object.fromEntries(
+    Object.entries(rewardComponents(result)).map(([name, component]) => [
+      name,
+      isRecord(component) && Array.isArray(component.hardGateFailures)
+        ? component.hardGateFailures
+        : []
+    ])
+  );
+}
+
+function scalarReward(result: EvalResult): number | null {
+  const breakdown = rewardBreakdown(result);
+  return isRecord(breakdown) && typeof breakdown.scalarReward === "number"
+    ? breakdown.scalarReward
+    : null;
 }
 
 function deriveReward(result: EvalResult): number {
@@ -406,8 +480,22 @@ function toTrajectory(
       breakdown: result.judgement.softScores
     },
     failure_taxonomy: result.judgement.errorTaxonomy,
-    reward_model: "simplified_scalar_v0",
-    derived_scalar_reward: deriveReward(result),
+    reward_model: scalarReward(result) === null ? "simplified_scalar_v0" : "component_scalar_v0",
+    reward_components: rewardComponents(result),
+    scalar_reward: scalarReward(result),
+    scalar_reward_policy: asString(rewardBreakdown(result)?.scalarPolicy, scalarReward(result) === null ? "simplified_scalar_v0" : "component_scalar_v0"),
+    hard_gate_passed: asBoolean(rewardBreakdown(result)?.hardGatePassed, result.judgement.passed),
+    scalar_capped: asBoolean(rewardBreakdown(result)?.scalarCapped),
+    scorer_sources: scorerSources(result),
+    gate_failures: gateFailures(result),
+    judge_scores: result.judgement.modelJudgeScores ?? [],
+    derived_scalar_reward: scalarReward(result) ?? deriveReward(result),
+    reward_targets: result.case.rewardTargets ?? [],
+    risk_area: result.case.riskArea,
+    skill_targets: result.case.skillTargets ?? [],
+    rl_tags: result.case.rlTags ?? [],
+    diagnostic_only: result.case.diagnosticOnly ?? false,
+    demo_only: result.case.demoOnly ?? false,
     reward_notes: rewardNotes(result),
     notes
   };
@@ -421,7 +509,13 @@ function exampleReport(): EvalReport {
       {
         case: {
           id: "weak_jd_should_not_create_objects",
-          title: "Short JD should not create objects"
+          title: "Short JD should not create objects",
+          rewardTargets: ["evidence_sufficiency", "side_effect_control", "answer_helpfulness", "trace_observability"],
+          riskArea: "weak_evidence_over_creation",
+          skillTargets: ["missing_info_quality", "side_effect_guard"],
+          rlTags: ["evidence-policy"],
+          diagnosticOnly: false,
+          demoOnly: false
         },
         observation: {
           provider: "mock",
@@ -482,7 +576,35 @@ function exampleReport(): EvalReport {
             traceCompleteness: 5
           },
           averageSoftScore: 4.83,
-          errorTaxonomy: []
+          errorTaxonomy: [],
+          rewardBreakdown: {
+            scalarReward: 0.94,
+            scalarPolicy: "component_scalar_v0",
+            hardGatePassed: true,
+            scalarCapped: false,
+            notes: ["example-only reward breakdown"],
+            components: {
+              evidence_sufficiency: {
+                name: "evidence_sufficiency",
+                score: 0.9,
+                applicable: true,
+                source: "hybrid",
+                hardGateFailures: [],
+                failureModes: [],
+                rationale: "No object creation from weak JD and useful missing-info answer."
+              },
+              side_effect_control: {
+                name: "side_effect_control",
+                score: 1,
+                applicable: true,
+                source: "rule",
+                hardGateFailures: [],
+                failureModes: [],
+                rationale: "No structured objects created."
+              }
+            }
+          },
+          modelJudgeScores: []
         }
       }
     ]
