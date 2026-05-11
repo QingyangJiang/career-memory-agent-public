@@ -15,11 +15,14 @@ research:
 
 - `AgentRun` / `AgentStep` trace: persisted workflow traces for agent decisions,
   actions, provider metadata, created objects, and failures.
-- Eval suites: focused task families such as `core-safety`, `memory`, `follow-up`, and
-  `opportunity`.
+- Reward-driven eval suites: focused task families such as `regression-smoke`,
+  `memory-policy`, `evidence-policy`, `context-followup`, and
+  `opportunity-lifecycle`, with legacy aliases preserved.
 - Hard assertions: deterministic gates for safety and behavioral invariants.
-- Soft scoring: rule-based quality gradients for answer relevance, memory safety,
-  object precision, and trace completeness.
+- Reward components: rule/model/hybrid scorer outputs for memory safety,
+  side-effect control, evidence sufficiency, source grounding, context resolution,
+  answer helpfulness, opportunity reasoning, trace observability, and runtime
+  diagnostics.
 - Failure taxonomy: structured failure labels that can become negative reward or
   curriculum buckets.
 - Provider-based LLM boundary: the same task can be run against Mock, DeepSeek, and
@@ -47,7 +50,8 @@ research:
 | eval case | task |
 | eval suite | task family |
 | hard assertions | gatekeeper reward |
-| soft score | dense reward |
+| reward components | dense reward contract |
+| scalar reward | component-weighted inspection scalar |
 | failure taxonomy | negative reward / curriculum bucket |
 | provider metadata | policy/model identity |
 | latency / timeout | infrastructure diagnostic, not model-quality reward by default |
@@ -100,9 +104,17 @@ Each JSONL record includes:
 | `hard_assertion_result` | Pass flag, pass rate, and failed hard assertions. |
 | `soft_score` | Average soft score and rule-based breakdown. |
 | `failure_taxonomy` | Structured failure labels emitted by the eval oracle. |
-| `reward_model` | Exporter heuristic identifier, currently `simplified_scalar_v0`. |
-| `derived_scalar_reward` | Simplified heuristic reward for export inspection. |
-| `reward_notes` | Caveats explaining that the scalar is not a training reward result. |
+| `reward_components` | Component-level rule/model/hybrid scorer outputs. |
+| `scalar_reward` | `component_scalar_v0` inspection scalar when available. |
+| `derived_scalar_reward` | Backward-compatible alias that points to `scalar_reward` when present. |
+| `scalar_reward_policy` | Scalar policy identifier. |
+| `hard_gate_passed` / `scalar_capped` | Gate and cap state for reward interpretation. |
+| `scorer_sources` / `gate_failures` | Per-component scorer source and hard gate details. |
+| `judge_scores` | Optional model judge scores; empty when judge is skipped. |
+| `reward_targets`, `risk_area`, `skill_targets`, `rl_tags` | Curriculum and coverage metadata from the case. |
+| `diagnostic_only`, `demo_only` | Flags that prevent demo/diagnostic artifacts from being mistaken for training data. |
+| `reward_model` | `component_scalar_v0` when reward breakdown exists, otherwise legacy `simplified_scalar_v0`. |
+| `reward_notes` | Caveats explaining that the scalar is not ART training output. |
 | `notes` | Export caveats and runtime diagnostics. |
 
 ## Phases

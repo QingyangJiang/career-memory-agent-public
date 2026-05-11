@@ -1,0 +1,34 @@
+{
+  "id": "follow_up_switches_reference_target",
+  "title": "follow-up 指代切换时不继续沿用旧对象",
+  "provider": "deepseek-flash",
+  "turns": [
+    { "user": "我应该投递 Reliable Agent 方向还是推荐系统方向？" },
+    { "user": "先说前者的风险。" },
+    { "user": "那后者呢？" }
+  ],
+  "expectations": {
+    "expectedIntent": ["follow_up"],
+    "expectedFollowUpType": ["compare_options", "expand_previous_answer", "ask_for_more_options", "ask_for_next_steps"],
+    "expectedActionLevel": ["answer_only"],
+    "mustUseConversationContext": true,
+    "shouldCreateEvidence": false,
+    "shouldCreateOpportunity": false,
+    "shouldCreateDecision": false,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 0,
+    "maxOpenQuestions": 0,
+    "maxPendingActions": 0,
+    "mustMentionAny": ["推荐系统", "后者", "风险", "Reliable Agent"],
+    "mustNotMention": ["已创建 Opportunity"]
+  },
+  "suites": ["context-followup"],
+  "inputType": "follow_up_reference_switch",
+  "evidenceSufficiency": "none",
+  "sideEffectPolicy": "none",
+  "rewardTargets": ["context_resolution", "side_effect_control", "answer_helpfulness", "trace_observability"],
+  "riskArea": "context_resolution",
+  "skillTargets": ["follow_up_resolution"],
+  "rlTags": ["context-followup"],
+  "judgeRequired": true
+}

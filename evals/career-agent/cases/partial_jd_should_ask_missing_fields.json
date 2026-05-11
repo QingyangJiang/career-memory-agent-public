@@ -1,0 +1,32 @@
+{
+  "id": "partial_jd_should_ask_missing_fields",
+  "title": "部分 JD 应追问关键缺失信息",
+  "provider": "deepseek-flash",
+  "turns": [
+    {
+      "user": "帮我判断这个岗位：做 Agent 评测和数据闭环，团队应该是大模型应用方向，但薪资和业务线还不清楚。"
+    }
+  ],
+  "expectations": {
+    "expectedActionLevel": ["answer_with_info_gaps", "answer_only"],
+    "expectedEvidenceSufficiency": ["partial"],
+    "shouldCreateEvidence": false,
+    "shouldCreateOpportunity": false,
+    "shouldCreateDecision": false,
+    "maxMemorySuggestions": 0,
+    "maxRisks": 0,
+    "maxOpenQuestions": 0,
+    "maxPendingActions": 0,
+    "mustMentionAny": ["薪资", "业务线", "完整 JD", "团队", "缺失"],
+    "mustNotMention": ["已创建 Opportunity", "已创建 Evidence"]
+  },
+  "suites": ["evidence-policy"],
+  "inputType": "partial_jd",
+  "evidenceSufficiency": "partial",
+  "sideEffectPolicy": "none",
+  "rewardTargets": ["evidence_sufficiency", "side_effect_control", "answer_helpfulness", "trace_observability"],
+  "riskArea": "missing_info_quality",
+  "skillTargets": ["missing_info_quality", "side_effect_guard"],
+  "rlTags": ["evidence-policy"],
+  "judgeRequired": true
+}

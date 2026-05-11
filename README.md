@@ -1,8 +1,8 @@
 # Career Memory Agent
 
 A memory-first, evidence-grounded, evaluation-driven Career Agent with auditable agent
-traces, user-confirmed memory, case-driven evals, and an optional ART-ready trajectory
-export bridge.
+traces, user-confirmed memory, reward-driven evals, and an optional ART-ready
+trajectory export bridge.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)]()
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)]()
@@ -55,6 +55,8 @@ Known failures are preserved because they are useful reliability evidence:
 
 - **Reliable Agent Eval:** hard assertions protect memory safety, evidence precision,
   follow-up behavior, provider expectations, and trace completeness.
+- **Reward-driven Scoring:** the eval system is organized around reward dimensions and
+  scorer types, with cases used as coverage samples.
 - **Failure Taxonomy:** failures are grouped into engineering categories such as
   memory pollution, over-automation, citation mismatch, router policy mismatch, and
   runtime timeout.
@@ -122,8 +124,14 @@ Demo boundaries:
 
 ## Documentation Map
 
-- [Evaluation design](docs/evaluation-design.md): hard assertions, soft scoring,
-  failure taxonomy, citation grounding direction, and opportunity suite design.
+- [Evaluation design](docs/evaluation-design.md): reward / scorer / case layers, hard
+  gates, failure taxonomy, citation grounding direction, and opportunity suite design.
+- [Reward / scorer design](docs/reward-scorer-design.md): reward dimensions,
+  rule/model/hybrid scorer split, hard-gate caps, and LLM-judge boundary.
+- [Status matrix](docs/status-matrix.md): implemented, pilot, planned, and
+  diagnostic-only eval/reward surfaces.
+- [Case coverage matrix](evals/career-agent/case-coverage.md): reward dimension to
+  case coverage, CI/offline/RL curriculum mapping, and deprecated/demo case status.
 - [Latest evaluation report](evals/career-agent/reports/latest.md): structured public
   report with summary, known failures, unmeasured metrics, and next suites.
 - [Evaluation report index](evals/career-agent/reports/README.md): how generated local
@@ -171,6 +179,7 @@ Core verification:
 npm run typecheck
 npm run build
 npm run eval:career-agent -- --provider=mock-smoke --suite=core-safety
+npm run eval:coverage
 ```
 
 Minimal reviewer path:
@@ -255,6 +264,7 @@ flowchart TD
 - Follow-up resolution using recent thread context and previous assistant content.
 - Provider boundary for Mock, DeepSeek, and planned OpenAI-compatible / MiMo paths.
 - Case-driven evaluation with hard assertions, soft scores, and failure taxonomy.
+- Reward-driven evaluation with rule, model, and hybrid scorer components.
 - JSONL trajectory export for optional future Agent RL research.
 
 ## Roadmap / Known Limitations

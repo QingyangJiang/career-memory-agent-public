@@ -13,8 +13,30 @@ turns. A reliable agent must avoid turning temporary thoughts into durable profi
 facts, avoid creating structured opportunity records from weak evidence, and resolve
 follow-up references without accidentally triggering side effects.
 
-This eval harness protects those invariants with deterministic cases, hard assertions,
-soft scoring, provider metadata, and AgentRun / AgentStep trace checks.
+This eval harness protects those invariants with deterministic hard gates, semantic
+scorer hooks, provider metadata, AgentRun / AgentStep trace checks, reward reports,
+and trajectory exports.
+
+## Reward / Scorer / Case Layers
+
+The eval system is reward-driven:
+
+```text
+Reward Spec -> Scorer Implementation -> Case Coverage Matrix -> Eval Report -> Trajectory Export
+```
+
+- Reward dimensions describe desired agent behavior such as memory safety, side-effect
+  control, evidence sufficiency, source grounding, context resolution, answer
+  helpfulness, opportunity reasoning, and trace observability.
+- Scorers measure those dimensions. Rule scorers check observable facts, model judges
+  score semantic quality, and hybrid scorers combine both.
+- Cases provide coverage samples. Every new non-demo case should declare
+  `rewardTargets`, side-effect policy, evidence sufficiency, risk area, skill targets,
+  and RL tags when applicable.
+
+The detailed reward/scorer contract lives in
+[Reward / Scorer Design](reward-scorer-design.md). This document focuses on the
+product risks and invariants those rewards protect.
 
 ## Core Risks
 

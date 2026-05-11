@@ -1,17 +1,18 @@
 import { loadEnvConfig } from "@next/env";
-import { existsSync, mkdirSync, readdirSync, copyFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, copyFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
-import type { LLMProviderConfig } from "../../lib/llm/config";
-import { judgeCase, type CaseObservation, type EvalExpectations, type TurnObservation } from "./judge";
+import { evaluateCase, type CaseObservation, type TurnObservation } from "./judge";
+import type { EvalCase } from "./schema/case-schema";
+import { EVAL_CONFIG, providerConfigFor, type EvalProviderConfig } from "./config/providers";
+import { EVAL_SUITES, MOCK_SMOKE_CASE_ORDER, MOCK_SMOKE_EXCLUDED_CASE_REASONS, suiteNames, type EvalSuite } from "./config/suites";
+import { coverageSummary } from "./reporters/coverage-matrix";
+import { writeJsonReport } from "./reporters/write-json-report";
+import { writeMdReport } from "./reporters/write-md-report";
+import { REWARD_COMPONENT_NAMES, type RewardComponentName } from "./schema/reward-schema";
 
-export interface EvalCase {
-  id: string;
-  title: string;
-  provider: "deepseek-flash" | "mock-smoke";
-  turns: Array<{ user: string }>;
-  expectations: EvalExpectations;
-}
+export { EVAL_CONFIG };
+export type { EvalCase, EvalProviderConfig };
 
 interface CliOptions {
   provider: "deepseek-flash" | "mock-smoke";
@@ -19,66 +20,6 @@ interface CliOptions {
   caseId?: string;
   maxCases?: number;
 }
-
-type EvalSuite = "ci-smoke" | "core-safety" | "follow-up" | "opportunity" | "opportunity-light" | "opportunity-heavy" | "memory";
-
-const EVAL_SUITES: Record<EvalSuite, string[]> = {
-  "ci-smoke": ["explicit_memory_update", "weak_jd_should_not_create_objects", "ordinary_chat_no_objects"],
-  "core-safety": [
-    "explicit_memory_update",
-    "temporary_thought_not_memory",
-    "weak_jd_should_not_create_objects",
-    "ordinary_chat_no_objects",
-    "needs_external_source",
-    "follow_up_uses_context"
-  ],
-  memory: [
-    "explicit_memory_update",
-    "temporary_thought_not_memory",
-    "preference_update_after_normal_chat",
-    "compensation_question_uses_memory_without_dump"
-  ],
-  "follow-up": ["follow_up_uses_context"],
-  opportunity: [
-    "weak_jd_should_not_create_objects",
-    "short_complete_jd_can_create_light_opportunity",
-    "multi_turn_evidence_completion",
-    "complete_jd_can_create_objects"
-  ],
-  "opportunity-light": [
-    "weak_jd_should_not_create_objects",
-    "short_complete_jd_can_create_light_opportunity",
-    "multi_turn_evidence_completion"
-  ],
-  "opportunity-heavy": ["complete_jd_can_create_objects"]
-};
-
-const MOCK_SMOKE_CASE_ORDER = [
-  "explicit_memory_update",
-  "weak_jd_should_not_create_objects",
-  "ordinary_chat_no_objects",
-  "short_complete_jd_can_create_light_opportunity",
-  "multi_turn_evidence_completion",
-  "needs_external_source",
-  "follow_up_uses_context",
-  "temporary_thought_not_memory"
-] as const;
-
-const MOCK_SMOKE_EXCLUDED_CASE_REASONS: Partial<Record<(typeof MOCK_SMOKE_CASE_ORDER)[number], string>> = {
-  follow_up_uses_context:
-    "Mock provider currently keeps the final follow-up intent as ask_question, so follow-up context assertions are reserved for real-provider evals."
-};
-
-export const EVAL_CONFIG = {
-  provider: "deepseek" as const,
-  model: "deepseek-v4-flash",
-  thinking: "disabled" as const,
-  reasoningEffort: "none" as const,
-  temperature: 0.2,
-  maxTokens: 2000,
-  timeoutMs: 60000,
-  stream: false
-};
 
 function parseArgs(): CliOptions {
   const args = process.argv.slice(2);
@@ -89,7 +30,7 @@ function parseArgs(): CliOptions {
     throw new Error(`Unsupported provider ${provider}. Use deepseek-flash or mock-smoke.`);
   }
   if (suite && !Object.hasOwn(EVAL_SUITES, suite)) {
-    throw new Error(`Unsupported suite ${suite}. Use ${Object.keys(EVAL_SUITES).join(", ")}.`);
+    throw new Error(`Unsupported suite ${suite}. Use ${suiteNames().join(", ")}.`);
   }
   return {
     provider,
@@ -226,8 +167,6 @@ function countPending(metadata: any) {
   return (created.memorySuggestionsCount ?? 0) + (created.risksCount ?? 0) + (created.openQuestionsCount ?? 0);
 }
 
-export type EvalProviderConfig = LLMProviderConfig & { model: string };
-
 function asArray(value: unknown): any[] {
   return Array.isArray(value) ? value : [];
 }
@@ -361,54 +300,86 @@ function percentile(values: number[], p: number) {
   return sorted[Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)];
 }
 
-function writeReports(payload: any) {
-  writeFileSync(resolve("evals/career-agent/report.json"), JSON.stringify(payload, null, 2));
-  const lines: string[] = [];
-  lines.push("# Career Agent Eval Report", "");
-  lines.push(`- provider/model: ${payload.provider}/${payload.model}`);
-  lines.push(`- total cases: ${payload.summary.totalCases}`);
-  lines.push(`- passed cases: ${payload.summary.passedCases}`);
-  lines.push(`- failed cases: ${payload.summary.failedCases}`);
-  lines.push(`- hard assertion pass rate: ${(payload.summary.hardPassRate * 100).toFixed(1)}%`);
-  lines.push(`- average soft score: ${payload.summary.averageSoftScore.toFixed(2)} / 5`);
-  lines.push(`- avg latency: ${payload.summary.avgLatencyMs}ms`);
-  lines.push(`- p95 latency: ${payload.summary.p95LatencyMs}ms`);
-  lines.push(`- timeout failures: ${payload.summary.timeoutCount}`);
-  lines.push(`- stop reason: ${payload.stopReason}`, "");
-  lines.push("## Cases", "");
-  for (const item of payload.results) {
-    lines.push(`### ${item.case.id}: ${item.case.title}`);
-    lines.push(`- pass/fail: ${item.judgement.passed ? "PASS" : "FAIL"}`);
-    lines.push(`- latency: ${item.observation.turns.reduce((sum: number, turn: any) => sum + turn.latencyMs, 0) + (item.observation.timeoutLatencyMs ?? 0)}ms`);
-    lines.push(`- provider/model: ${item.observation.provider}/${item.observation.model}`);
-    lines.push(`- error taxonomy: ${item.judgement.errorTaxonomy.join(", ") || "none"}`);
-    lines.push(`- suggested fix: ${item.judgement.suggestedFixes.join(" | ") || "none"}`);
-    lines.push("- turns:");
-    for (const turn of item.observation.turns) {
-      lines.push(`  - user: ${turn.user}`);
-      lines.push(`    assistant summary: ${turn.assistant.slice(0, 220).replace(/\n/g, " ")}${turn.assistant.length > 220 ? "..." : ""}`);
-      lines.push(`    created: evidence=${turn.createdEvidence}, opportunity=${turn.createdOpportunity}, decision=${turn.createdDecision}, memorySuggestions=${turn.memorySuggestionsCount}, risks=${turn.risksCount}, openQuestions=${turn.openQuestionsCount}`);
-      lines.push(`    trace: agentRun=${turn.agentRunId ?? "missing"}, steps=${turn.agentStepsCount}, actionLevel=${turn.actionLevel}, evidence=${turn.evidenceSufficiency}`);
-      if (turn.citationTitles.length || turn.contextRefTitles.length) lines.push(`    citations/context: ${[...turn.citationTitles, ...turn.contextRefTitles].join(", ")}`);
-      if (turn.intent === "follow_up") lines.push(`    follow-up: type=${turn.followUpType}, usedLastAssistant=${turn.usedLastAssistantAnswer}, resolved=${turn.resolvedReference ?? ""}`);
-    }
-    const failed = item.judgement.hardAssertions.filter((assertion: any) => !assertion.passed);
-    lines.push(`- hard assertion failures: ${failed.map((assertion: any) => `${assertion.name} (${assertion.detail})`).join("; ") || "none"}`, "");
+function summarizeReward(results: any[]) {
+  const components: Partial<Record<RewardComponentName, { mean: number | null; applicableCount: number; hardGateFailureCount: number }>> = {};
+  for (const name of REWARD_COMPONENT_NAMES) {
+    const scores = results
+      .map((item) => item.judgement.rewardBreakdown?.components?.[name])
+      .filter((component) => component?.applicable && typeof component.score === "number");
+    const hardGateFailureCount = results
+      .map((item) => item.judgement.rewardBreakdown?.components?.[name])
+      .filter((component) => (component?.hardGateFailures?.length ?? 0) > 0).length;
+    components[name] = {
+      mean: scores.length ? Number((scores.reduce((sum, component) => sum + (component?.score ?? 0), 0) / scores.length).toFixed(4)) : null,
+      applicableCount: scores.length,
+      hardGateFailureCount
+    };
   }
-  lines.push("## Before / After", "");
-  lines.push("Initial run is the baseline for this harness. Future runs can compare against files in `evals/career-agent/history/`.");
-  lines.push("");
-  writeFileSync(resolve("evals/career-agent/report.md"), lines.join("\n"));
+  const modelScores = results.flatMap((item) => item.judgement.modelJudgeScores ?? []).map((score) => score.score);
+  const hybridScores = results.flatMap((item) =>
+    Object.values(item.judgement.rewardBreakdown?.components ?? {}).filter((component: any) => component.source === "hybrid" && typeof component.score === "number")
+  ) as Array<{ score: number }>;
+  const runtimeFailures = results.filter((item) =>
+    (item.judgement.rewardBreakdown?.components?.efficiency_runtime?.failureModes ?? []).some((mode: string) =>
+      ["runtime_timeout", "runtime_error", "provider_mismatch", "high_latency", "api_key_missing"].includes(mode)
+    )
+  ).length;
+  const failureCount = (name: RewardComponentName, mode: string) =>
+    results.filter((item) => item.judgement.rewardBreakdown?.components?.[name]?.failureModes?.includes(mode)).length;
+  return {
+    components,
+    modelJudgeMeanScore: modelScores.length ? Number((modelScores.reduce((sum, item) => sum + item, 0) / modelScores.length).toFixed(4)) : null,
+    hybridRewardMean: hybridScores.length ? Number((hybridScores.reduce((sum, item) => sum + item.score, 0) / hybridScores.length).toFixed(4)) : null,
+    runtimeFailureRate: results.length ? runtimeFailures / results.length : 0,
+    memorySafetyViolationCount: components.memory_safety?.hardGateFailureCount ?? 0,
+    weakEvidenceOverCreationCount: failureCount("evidence_sufficiency", "weak_evidence_over_creation"),
+    groundingFailureCount: components.source_grounding?.hardGateFailureCount ?? 0,
+    contextResolutionFailureCount: components.context_resolution?.hardGateFailureCount ?? 0
+  };
+}
+
+function summarizeScorers(results: any[]) {
+  const modelJudgeExecutedCount = results.reduce((sum, item) => sum + (item.judgement.modelJudgeScores?.length ?? 0), 0);
+  const skipped = results.find((item) => item.judgement.judgeSkippedReason)?.judgement.judgeSkippedReason;
+  const judgeProvider = results.find((item) => item.judgement.judgeProvider)?.judgement.judgeProvider ?? "skipped";
+  const ruleFailureCount = results.reduce(
+    (sum, item) =>
+      sum +
+      Object.values(item.judgement.rewardBreakdown?.components ?? {}).filter(
+        (component: any) => component.source === "rule" && (component.hardGateFailures?.length ?? 0) > 0
+      ).length,
+    0
+  );
+  return {
+    ruleFailureCount,
+    modelJudgeExecutedCount,
+    modelJudgeSkippedCount: modelJudgeExecutedCount ? 0 : results.length,
+    judgeProvider,
+    judgeSkippedReason: skipped
+  };
+}
+
+function summarizeTaxonomy(results: any[]) {
+  const counts: Record<string, number> = {};
+  for (const item of results) {
+    for (const label of item.judgement.errorTaxonomy ?? []) {
+      counts[label] = (counts[label] ?? 0) + 1;
+    }
+  }
+  return counts;
+}
+
+function writeReports(payload: any) {
+  writeJsonReport(payload);
+  writeMdReport(payload);
 }
 
 async function main() {
   loadEnvConfig(process.cwd());
   const options = parseArgs();
   const cases = loadCases(options);
-  const providerConfig: EvalProviderConfig =
-    options.provider === "mock-smoke"
-      ? { provider: "mock", model: "MockLLMProvider", providerLabel: "MockLLMProvider", thinking: "disabled", reasoningEffort: "none", timeoutMs: 60000 }
-      : { ...EVAL_CONFIG, providerLabel: "DeepSeek Flash" };
+  const coverageCases = loadCases({ provider: "deepseek-flash" });
+  const providerConfig: EvalProviderConfig = providerConfigFor(options.provider);
 
   if (options.provider === "deepseek-flash" && !process.env.DEEPSEEK_API_KEY?.trim()) {
     const payload = {
@@ -417,6 +388,19 @@ async function main() {
       skipped: true,
       stopReason: "missing DEEPSEEK_API_KEY",
       summary: { totalCases: cases.length, passedCases: 0, failedCases: 0, hardPassRate: 0, averageSoftScore: 0, avgLatencyMs: 0, p95LatencyMs: 0, timeoutCount: 0 },
+      rewardSummary: {
+        components: {},
+        modelJudgeMeanScore: null,
+        hybridRewardMean: null,
+        runtimeFailureRate: 0,
+        memorySafetyViolationCount: 0,
+        weakEvidenceOverCreationCount: 0,
+        groundingFailureCount: 0,
+        contextResolutionFailureCount: 0
+      },
+      scorerSummary: { ruleFailureCount: 0, modelJudgeExecutedCount: 0, modelJudgeSkippedCount: cases.length, judgeProvider: "skipped", judgeSkippedReason: "missing DEEPSEEK_API_KEY" },
+      coverageSummary: coverageSummary(coverageCases),
+      failureTaxonomySummary: {},
       results: []
     };
     writeReports(payload);
@@ -442,7 +426,7 @@ async function main() {
         error: error instanceof Error ? error.message : String(error)
       };
     }
-    const judgement = judgeCase(observation, testCase.expectations);
+    const judgement = await evaluateCase(testCase, observation);
     results.push({ case: testCase, observation, judgement });
     console.log(`${judgement.passed ? "PASS" : "FAIL"} ${testCase.id}`);
   }
@@ -480,6 +464,10 @@ async function main() {
       p95LatencyMs,
       timeoutCount: results.filter((item) => item.observation.timedOut).length
     },
+    rewardSummary: summarizeReward(results),
+    scorerSummary: summarizeScorers(results),
+    coverageSummary: coverageSummary(coverageCases),
+    failureTaxonomySummary: summarizeTaxonomy(results),
     results
   };
   writeReports(payload);

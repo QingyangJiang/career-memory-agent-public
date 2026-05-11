@@ -3,13 +3,25 @@
   "title": "简历项目表达自然改写，不创建机会",
   "provider": "deepseek-flash",
   "turns": [
-    { "user": "帮我把 RubricFlow Writing Evaluator 项目改成更适合 Agent 后训练岗位的说法。" }
+    {
+      "user": "帮我把 RubricFlow Writing Evaluator 项目改成更适合 Agent 后训练岗位的说法。"
+    }
   ],
   "expectations": {
-    "expectedIntent": ["rewrite_resume_project", "ask_question"],
-    "expectedActionLevel": ["answer_only"],
-    "expectedEvidenceSufficiency": ["none"],
-    "expectedMemorySignalStrength": ["none", "low"],
+    "expectedIntent": [
+      "rewrite_resume_project",
+      "ask_question"
+    ],
+    "expectedActionLevel": [
+      "answer_only"
+    ],
+    "expectedEvidenceSufficiency": [
+      "none"
+    ],
+    "expectedMemorySignalStrength": [
+      "none",
+      "low"
+    ],
     "shouldCreateEvidence": false,
     "shouldCreateOpportunity": false,
     "shouldCreateDecision": false,
@@ -17,7 +29,25 @@
     "maxRisks": 0,
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
-    "mustMentionAny": ["Agent 后训练", "Reward", "Verifier", "评测", "项目"],
-    "mustNotMention": ["已创建 Opportunity", "已写入长期 Memory", "请填写表单"]
-  }
+    "mustMentionAny": [
+      "Agent 后训练",
+      "Reward",
+      "Verifier",
+      "评测",
+      "项目"
+    ],
+    "mustNotMention": [
+      "已创建 Opportunity",
+      "已写入长期 Memory",
+      "请填写表单"
+    ]
+  },
+  "demoOnly": true,
+  "diagnosticOnly": true,
+  "suites": [],
+  "rewardTargets": [
+    "answer_helpfulness",
+    "trace_observability"
+  ],
+  "riskArea": "demo_writing"
 }

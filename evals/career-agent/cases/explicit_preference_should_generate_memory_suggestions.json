@@ -8,10 +8,18 @@
     }
   ],
   "expectations": {
-    "expectedIntent": ["update_memory"],
-    "expectedActionLevel": ["suggest_memory_candidate"],
-    "expectedMemorySignalStrength": ["high"],
-    "expectedEvidenceSufficiency": ["none"],
+    "expectedIntent": [
+      "update_memory"
+    ],
+    "expectedActionLevel": [
+      "suggest_memory_candidate"
+    ],
+    "expectedMemorySignalStrength": [
+      "high"
+    ],
+    "expectedEvidenceSufficiency": [
+      "none"
+    ],
     "shouldCreateEvidence": false,
     "shouldCreateOpportunity": false,
     "shouldCreateDecision": false,
@@ -20,7 +28,24 @@
     "maxOpenQuestions": 0,
     "minMemorySuggestions": 1,
     "maxMemorySuggestions": 3,
-    "mustMentionAny": ["优先", "Reliable Agent", "后训练", "Reward Model", "Verifier", "纯预训练"],
-    "mustNotMention": ["公司业务线", "岗位职责占比", "任职要求", "薪资/职级", "owner 空间", "正式 Opportunity"]
-  }
+    "mustMentionAny": [
+      "优先",
+      "Reliable Agent",
+      "后训练",
+      "Reward Model",
+      "Verifier",
+      "纯预训练"
+    ],
+    "mustNotMention": [
+      "公司业务线",
+      "岗位职责占比",
+      "任职要求",
+      "薪资/职级",
+      "owner 空间",
+      "正式 Opportunity"
+    ]
+  },
+  "deprecated": true,
+  "replacementCaseId": "explicit_memory_update",
+  "diagnosticOnly": true
 }

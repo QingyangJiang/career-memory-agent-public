@@ -2,17 +2,45 @@
   "id": "markdown_and_trace",
   "title": "Markdown 和 Agent trace 正常",
   "provider": "deepseek-flash",
-  "turns": [{ "user": "用表格帮我对比 Aurora Tutor Agent 和 ChainGraph Tool Agent，并给我下一步行动。" }],
+  "turns": [
+    {
+      "user": "用表格帮我对比 Aurora Tutor Agent 和 ChainGraph Tool Agent，并给我下一步行动。"
+    }
+  ],
   "expectations": {
-    "expectedActionLevel": ["show_structured_card", "answer_only"],
-    "expectedEvidenceSufficiency": ["none", "partial"],
+    "expectedActionLevel": [
+      "show_structured_card",
+      "answer_only"
+    ],
+    "expectedEvidenceSufficiency": [
+      "none",
+      "partial"
+    ],
     "shouldCreateEvidence": false,
     "shouldCreateOpportunity": false,
     "shouldCreateDecision": false,
     "maxMemorySuggestions": 0,
     "maxRisks": 0,
     "maxOpenQuestions": 0,
-    "mustMentionAny": ["|", "Aurora", "ChainGraph", "下一步"],
-    "mustNotMention": ["chain-of-thought", "reasoning_content"]
-  }
+    "mustMentionAny": [
+      "|",
+      "Aurora",
+      "ChainGraph",
+      "下一步"
+    ],
+    "mustNotMention": [
+      "chain-of-thought",
+      "reasoning_content"
+    ]
+  },
+  "demoOnly": true,
+  "diagnosticOnly": true,
+  "suites": [
+    "runtime-diagnostic"
+  ],
+  "rewardTargets": [
+    "trace_observability",
+    "efficiency_runtime"
+  ],
+  "riskArea": "formatting_smoke"
 }
