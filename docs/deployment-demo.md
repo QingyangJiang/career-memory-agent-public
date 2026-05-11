@@ -137,6 +137,12 @@ Postgres deployment would require:
   reports, and example-only ART-ready export.
 - The demo should not claim ART training, trained model ids, before/after ART eval
   deltas, or production SaaS readiness.
+- Before and after deployment, run `npm run public:hygiene` and `npm run public:links`
+  from the sanitized public repo.
+- See [public release checklist](public-release-checklist.md) before sharing the demo
+  URL.
+- If the Render URL keeps an old service name, confirm it is only a service URL and
+  not a link to an old GitHub repository.
 
 ## Launch Checklist
 

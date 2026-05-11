@@ -15,6 +15,8 @@
     "test:deepseek": "tsx scripts/test-deepseek.ts",
     "eval:career-agent": "tsx evals/career-agent/run-evals.ts",
     "art:export": "tsx evals/career-agent/art/export-trajectories.ts",
+    "public:hygiene": "tsx scripts/public-hygiene-scan.ts",
+    "public:links": "tsx scripts/public-link-scan.ts",
     "inspect:eval": "INSPECT_TRACE_FILE=evals/career-agent/inspect/logs/trace.log python3 -m inspect_ai eval evals/career-agent/inspect/task.py@career_agent --model mockllm/model --log-dir evals/career-agent/inspect/logs -T provider=mock-smoke",
     "inspect:view": "INSPECT_TRACE_FILE=evals/career-agent/inspect/logs/view-trace.log python3 -m inspect_ai view start --log-dir evals/career-agent/inspect/logs",
     "inspect:smoke": "tsx evals/career-agent/inspect/smoke.ts"

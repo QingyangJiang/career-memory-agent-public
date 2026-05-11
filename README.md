@@ -118,8 +118,11 @@ Demo boundaries:
 - Mock provider by default; the public demo focuses on workflow and safety evidence.
 - DeepSeek is disabled unless explicitly enabled for a controlled deployment.
 - Do not enter private personal information.
+- All demo data is synthetic; see Privacy Sanitization and Reviewer Guide.
 - Demo data may reset on redeploy or service restart.
 - Eval and ART artifacts are linked as public evidence, not training results.
+- The Render service URL may retain the old service name, but all GitHub artifact
+  links point to the sanitized public repo.
 - Demo launch and manual QA checklists live in
   [docs/deployment-demo.md](docs/deployment-demo.md).
 
@@ -127,6 +130,10 @@ Demo boundaries:
 
 - [Evaluation design](docs/evaluation-design.md): hard assertions, soft scoring,
   failure taxonomy, citation grounding direction, and opportunity suite design.
+- [Reviewer guide](docs/reviewer-guide.md): 3-minute and 10-minute review paths for
+  interviewers.
+- [Public release checklist](docs/public-release-checklist.md): hygiene, links, demo,
+  and data checks before sharing the repo or demo.
 - [Latest evaluation report](evals/career-agent/reports/latest.md): structured public
   report with summary, known failures, unmeasured metrics, and next suites.
 - [Evaluation report index](evals/career-agent/reports/README.md): how generated local

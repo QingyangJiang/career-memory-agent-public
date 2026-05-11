@@ -63,6 +63,31 @@ export default function DemoPage() {
         Public demos should use seeded data and mock provider paths by default. Do not
         enter private personal information. Demo data may be reset periodically.
       </section>
+
+      <section className="rounded-lg border border-slate-200 bg-white px-4 py-4 text-sm leading-6 text-slate-700 shadow-sm">
+        <h2 className="text-base font-semibold text-ink">Demo Runtime / QA Notes</h2>
+        <ul className="mt-3 space-y-1.5">
+          <li>- Public demo defaults to Mock provider.</li>
+          <li>- DeepSeek is disabled unless a controlled deployment explicitly enables it.</li>
+          <li>- Do not enter private information.</li>
+          <li>- All data is synthetic.</li>
+          <li>- After running scenarios, inspect Agent Summary and AgentRun trace.</li>
+        </ul>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <a
+            className="font-medium text-focus hover:underline"
+            href="https://github.com/QingyangJiang/career-memory-agent-public/blob/main/docs/reviewer-guide.md"
+          >
+            Reviewer guide
+          </a>
+          <a
+            className="font-medium text-focus hover:underline"
+            href="https://github.com/QingyangJiang/career-memory-agent-public/blob/main/docs/public-release-checklist.md"
+          >
+            Public release checklist
+          </a>
+        </div>
+      </section>
     </div>
   );
 }

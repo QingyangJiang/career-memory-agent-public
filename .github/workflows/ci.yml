@@ -45,3 +45,9 @@ jobs:
 
       - name: Run stable eval smoke suite
         run: npm run eval:career-agent -- --provider=mock-smoke --suite=ci-smoke
+
+      - name: Public hygiene scan
+        run: npm run public:hygiene
+
+      - name: Public link scan
+        run: npm run public:links

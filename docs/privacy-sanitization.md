@@ -5,6 +5,9 @@ This public repository and online demo use a synthetic demo persona.
 This public repository is the sanitized public portfolio version. It uses synthetic
 persona data and should not link back to any unsanitized repository history.
 
+The old private repo should remain private. Public materials should point to this
+sanitized repository only.
+
 ## Synthetic Persona
 
 - Name: 林澈 / Lin Che
@@ -55,6 +58,15 @@ improvement.
 Do not enter private personal information into the public demo. The demo is intended
 for portfolio review and should remain mock-provider-first unless a controlled
 deployment explicitly enables a real provider.
+
+## Best-effort Hygiene Scan
+
+This repo includes `npm run public:hygiene` as a best-effort check for known sensitive
+keywords, old repository links, and real compensation-like strings. It is useful for CI
+and release hygiene, but it is not a complete privacy guarantee.
+
+Manual review is still required for screenshots, generated data, deployment databases,
+and any historical copies outside this repository.
 
 ## Git History Caveat
 
