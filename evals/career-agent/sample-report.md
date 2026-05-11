@@ -2,8 +2,8 @@
 
 Latest local run date: 2026-05-10
 
-This file is the committed public snapshot index. The full structured report lives in
-[reports/latest.md](reports/latest.md).
+This file is a short committed public snapshot index retained for compatibility with
+older links. The full structured report lives in [reports/latest.md](reports/latest.md).
 Machine-readable metadata for the same snapshot lives in
 [reports/latest.manifest.json](reports/latest.manifest.json).
 

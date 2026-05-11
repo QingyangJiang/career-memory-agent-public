@@ -1,6 +1,11 @@
 # Interview Demo Script
 
-This is a 3-4 minute walkthrough for showing Career Memory Agent as a reliable, memory-safe, evidence-grounded agent system.
+This is a 3-4 minute walkthrough for showing Career Memory Agent as a reliable,
+memory-safe, evidence-grounded agent system.
+
+The script uses only the synthetic Lin Che demo persona. It should stay aligned with
+the `/demo` scenario cards and should not include real companies, compensation,
+projects, or interview history.
 
 ## Opening
 

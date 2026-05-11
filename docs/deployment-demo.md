@@ -1,5 +1,9 @@
 # Demo Deployment Guide
 
+This document covers deployment and launch QA only. It does not redefine the product
+architecture or eval methodology; see [architecture.md](architecture.md) and
+[evaluation-design.md](evaluation-design.md) for those topics.
+
 This document describes a demo-safe deployment for the Career Memory Agent portfolio
 project. The online demo is not a production SaaS product, not a resume generator, not
 an auto-apply bot, and not evidence of ART training or model-quality improvement.

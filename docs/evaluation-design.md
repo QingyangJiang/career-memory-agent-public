@@ -1,5 +1,10 @@
 # Career Agent Evaluation Design
 
+This document explains the evaluation methodology. Current recorded metrics live in
+[reports/latest.md](../evals/career-agent/reports/latest.md), and feature status lives
+in [status-matrix.md](status-matrix.md). This file should not be read as a benchmark
+report.
+
 Career Memory Agent is evaluated as a stateful, side-effecting agent, not as a
 single-turn QA model. The important question is not only whether the answer sounds
 useful, but whether the agent writes the right objects, avoids unsafe memory updates,

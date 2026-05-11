@@ -1,5 +1,9 @@
 # Router Design
 
+This document is the semantic routing deep dive. For the end-to-end system map, see
+[architecture.md](architecture.md). This file focuses on routing, planner split, action
+levels, follow-up resolution, and deterministic guardrails.
+
 The Career Agent router keeps conversation, structured artifacts, and database writes
 separate. The assistant should answer first, then attach structured outputs only when
 the turn calls for them.

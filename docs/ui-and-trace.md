@@ -1,5 +1,9 @@
 # UI And Trace
 
+This document covers user-facing trace and review surfaces. For the broader system
+architecture, see [architecture.md](architecture.md). This file does not describe eval
+methodology or ART export details.
+
 The UI keeps conversation, audit state, citations, and pending actions visually
 separate. The goal is a normal chat experience with inspectable agent behavior attached
 when relevant.

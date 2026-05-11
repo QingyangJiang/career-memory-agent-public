@@ -3,6 +3,10 @@
 This directory contains hand-curated public evaluation reports for the Career Agent
 portfolio project.
 
+For evaluation methodology, read [docs/evaluation-design.md](../../../docs/evaluation-design.md).
+This directory is about report artifacts: generated local reports, committed public
+snapshots, and machine-readable manifest metadata.
+
 ## Generated Local Reports
 
 The eval runner writes these local files:

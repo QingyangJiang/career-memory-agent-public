@@ -1,5 +1,8 @@
 # ART Export Validation
 
+This is an artifact validation guide. It explains how reviewers can inspect the
+exporter output shape; it does not define a training pipeline.
+
 The ART exporter converts eval report and AgentRun trace summaries into ART-ready JSONL
 records. It is an inspection and research bridge:
 

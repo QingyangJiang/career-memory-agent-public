@@ -1,9 +1,17 @@
 # Product Architecture
 
+This is a product-surface and data-model deep dive. For the canonical system overview,
+start with [architecture.md](architecture.md).
+
 Career Memory Agent is a local-first Career Agent organized around memory, evidence,
 opportunities, traces, and evaluation. The app is not a job board, resume generator, or
 auto-apply system. Its primary goal is to make long-running career decisions auditable
 and testable.
+
+This document covers product surfaces, persisted entities, provider boundaries, and
+local runtime notes. It does not restate the full request lifecycle or eval/ART
+boundary; those live in [architecture.md](architecture.md) and
+[evaluation-design.md](evaluation-design.md).
 
 ## Product Surfaces
 

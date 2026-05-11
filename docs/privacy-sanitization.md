@@ -1,5 +1,8 @@
 # Privacy Sanitization
 
+This document defines the public data boundary. It is intentionally separate from the
+demo deployment guide and architecture docs.
+
 This public repository and online demo use a synthetic demo persona.
 
 This public repository is the sanitized public portfolio version. It uses synthetic

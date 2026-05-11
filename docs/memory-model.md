@@ -1,5 +1,9 @@
 # Memory Model
 
+This document is the memory-specific deep dive. For the full object model and request
+lifecycle, see [architecture.md](architecture.md). This file focuses on conversation
+context, working memory, durable memory, and MemorySuggestion policy.
+
 Career Memory Agent separates short-term conversation context, working task state, and
 durable long-term memory. This separation is the core memory-safety boundary.
 

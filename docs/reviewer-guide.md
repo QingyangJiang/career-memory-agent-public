@@ -30,14 +30,16 @@
 
 ## 10-minute Deep Dive
 
-1. Read [evaluation design](evaluation-design.md).
-2. Inspect [reports/latest.md](../evals/career-agent/reports/latest.md).
-3. Inspect [latest.manifest.json](../evals/career-agent/reports/latest.manifest.json).
-4. Inspect the compensation source-object grounding case:
+1. Open the [documentation guide](README.md).
+2. Read the [status matrix](status-matrix.md).
+3. Read [evaluation design](evaluation-design.md).
+4. Inspect [reports/latest.md](../evals/career-agent/reports/latest.md).
+5. Inspect [latest.manifest.json](../evals/career-agent/reports/latest.manifest.json).
+6. Inspect the compensation source-object grounding case:
    [`compensation_question_uses_memory_without_dump.json`](../evals/career-agent/cases/compensation_question_uses_memory_without_dump.json).
-5. Inspect [ART reward design](../evals/career-agent/art/reward-design.md).
-6. Inspect [ART export validation](../evals/career-agent/art/export-validation.md).
-7. Inspect [CI workflow](../.github/workflows/ci.yml).
+7. Inspect [ART reward design](../evals/career-agent/art/reward-design.md).
+8. Inspect [ART export validation](../evals/career-agent/art/export-validation.md).
+9. Inspect [CI workflow](../.github/workflows/ci.yml).
 
 ## What To Look For
 

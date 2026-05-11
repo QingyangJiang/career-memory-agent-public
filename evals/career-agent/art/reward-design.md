@@ -1,5 +1,9 @@
 # Career Agent ART Reward Design
 
+This document is a design note, not a training report. Current exporter behavior is
+validated in [export-validation.md](export-validation.md), while high-level ART bridge
+boundaries live in [docs/art-integration.md](../../../docs/art-integration.md).
+
 This is a tentative reward schema for future Agent RL / GRPO experiments. It is not a
 record of completed training.
 

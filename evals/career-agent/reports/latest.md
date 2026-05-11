@@ -2,6 +2,10 @@
 
 Latest local run date: 2026-05-10
 
+This is the current committed public snapshot. For methodology, see
+[docs/evaluation-design.md](../../../docs/evaluation-design.md). For feature status,
+see [docs/status-matrix.md](../../../docs/status-matrix.md).
+
 This committed report is the public snapshot for the portfolio repo. It records actual
 local eval runs only. It does not include fabricated provider benchmarks, cost
 estimates, or metrics that were not emitted by the harness.

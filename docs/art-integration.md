@@ -1,5 +1,10 @@
 # ART-ready Agent RL Bridge
 
+This is the canonical ART bridge document for the public repo. It describes an
+optional eval-to-trajectory export interface, not a training system. For reward
+details, see [reward-design.md](../evals/career-agent/art/reward-design.md); for
+artifact checks, see [export-validation.md](../evals/career-agent/art/export-validation.md).
+
 ART here refers to OpenPipe ART / Agent Reinforcement Trainer. At a high level, ART is
 a research-oriented path for turning agent task trajectories and reward signals into
 data for reinforcement learning experiments, including GRPO-style feedback loops.
