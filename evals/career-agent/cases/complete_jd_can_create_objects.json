@@ -4,7 +4,7 @@
   "provider": "deepseek-flash",
   "turns": [
     {
-      "user": "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；岗位职责：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier，构建评测、数据闭环和 AgentRun trace 分析；薪资/职级：Demo Band A，结构包含 base / bonus / equity-like incentive；要求熟悉 PPO/GRPO/DPO。"
+      "user": "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；岗位职责：负责 Agent 场景下的 GRPO、RLHF、Reward Model 和 Verifier，构建评测、数据闭环和 AgentRun trace 分析；薪酬区间/职级：Demo Band A，结构包含 base / bonus / equity-like incentive；要求熟悉 PPO/GRPO/DPO。"
     }
   ],
   "expectations": {

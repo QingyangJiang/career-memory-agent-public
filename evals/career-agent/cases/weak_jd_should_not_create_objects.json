@@ -16,7 +16,7 @@
     "maxRisks": 0,
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
-    "mustMentionAny": ["完整 JD", "公司", "团队", "薪资", "owner", "职责占比"],
+    "mustMentionAny": ["完整 JD", "公司", "团队", "薪酬区间", "owner", "职责占比"],
     "mustNotMention": ["已创建 Opportunity", "Opportunity Follow-ups (22)", "生成/更新 9 条 active risks"],
     "perTurn": [
       {

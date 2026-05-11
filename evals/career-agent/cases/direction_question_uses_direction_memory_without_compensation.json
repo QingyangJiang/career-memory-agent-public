@@ -1,6 +1,6 @@
 {
   "id": "direction_question_uses_direction_memory_without_compensation",
-  "title": "方向选择问题使用方向记忆但不夹带薪资约束",
+  "title": "方向选择问题使用方向记忆但不夹带薪酬区间约束",
   "provider": "deepseek-flash",
   "turns": [
     {
@@ -20,6 +20,6 @@
     "mustCiteAny": ["Agent", "后训练", "短期目标", "长期目标"],
     "mustNotCite": ["目标薪酬区间", "Demo Band A"],
     "mustMentionAny": ["Agent", "后训练", "纯预训练", "优先", "业务闭环", "owner"],
-    "mustNotMention": ["已创建 Opportunity", "MemorySuggestion", "薪资"]
+    "mustNotMention": ["已创建 Opportunity", "MemorySuggestion", "薪酬区间"]
   }
 }

@@ -18,7 +18,7 @@
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
     "mustUseConversationContext": true,
-    "mustMentionAny": ["完整 JD", "公司", "团队", "薪资", "owner", "职责占比", "GRPO"],
+    "mustMentionAny": ["完整 JD", "公司", "团队", "薪酬区间", "owner", "职责占比", "GRPO"],
     "mustNotMention": ["我在", "你可以随便说", "请重新描述", "我不清楚你指什么", "已创建 Opportunity"]
   }
 }

@@ -21,6 +21,6 @@
     "minMemorySuggestions": 1,
     "maxMemorySuggestions": 3,
     "mustMentionAny": ["优先", "Reliable Agent", "后训练", "Reward Model", "Verifier", "纯预训练"],
-    "mustNotMention": ["公司业务线", "岗位职责占比", "任职要求", "薪资/职级", "owner 空间", "正式 Opportunity"]
+    "mustNotMention": ["公司业务线", "岗位职责占比", "任职要求", "薪酬区间/职级", "owner 空间", "正式 Opportunity"]
   }
 }

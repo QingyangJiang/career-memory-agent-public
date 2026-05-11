@@ -1,7 +1,7 @@
 import { DemoScenarioCard } from "@/components/demo/DemoScenarioCard";
 
 const opportunityPrompt =
-  "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；职责：负责 GRPO、Reward Model、评测体系、数据闭环和 AgentRun trace 分析；要求：熟悉 PPO / GRPO / DPO，有 Agent 应用上线经验；薪资/职级：Demo Band A，结构包含 base / bonus / equity-like incentive。请判断是否值得进入正式 Opportunity 分析。";
+  "完整 JD：公司/业务线：星桥智能学习实验室；团队：Reliable Tutor Agent 后训练团队；职责：负责 GRPO、Reward Model、评测体系、数据闭环和 AgentRun trace 分析；要求：熟悉 PPO / GRPO / DPO，有 Agent 应用上线经验；薪酬区间/职级：Demo Band A，结构包含 base / bonus / equity-like incentive。请判断是否值得进入正式 Opportunity 分析。";
 
 export default function DemoPage() {
   return (
@@ -51,10 +51,10 @@ export default function DemoPage() {
           prompt=""
           inspect={["Latest report and machine-readable manifest", "Weak-JD example trajectory and export validation notes"]}
           links={[
-            { label: "Latest eval report", href: "https://github.com/QingyangJiang/career-opportunity-agent/blob/main/evals/career-agent/reports/latest.md" },
-            { label: "Latest report manifest", href: "https://github.com/QingyangJiang/career-opportunity-agent/blob/main/evals/career-agent/reports/latest.manifest.json" },
-            { label: "Weak-JD example trajectory", href: "https://github.com/QingyangJiang/career-opportunity-agent/blob/main/evals/career-agent/art/examples/weak-jd.trajectory.jsonl" },
-            { label: "ART export validation", href: "https://github.com/QingyangJiang/career-opportunity-agent/blob/main/evals/career-agent/art/export-validation.md" }
+            { label: "Latest eval report", href: "https://github.com/QingyangJiang/career-memory-agent-public/blob/main/evals/career-agent/reports/latest.md" },
+            { label: "Latest report manifest", href: "https://github.com/QingyangJiang/career-memory-agent-public/blob/main/evals/career-agent/reports/latest.manifest.json" },
+            { label: "Weak-JD example trajectory", href: "https://github.com/QingyangJiang/career-memory-agent-public/blob/main/evals/career-agent/art/examples/weak-jd.trajectory.jsonl" },
+            { label: "ART export validation", href: "https://github.com/QingyangJiang/career-memory-agent-public/blob/main/evals/career-agent/art/export-validation.md" }
           ]}
         />
       </section>

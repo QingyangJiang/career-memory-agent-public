@@ -430,7 +430,7 @@ function exampleReport(): EvalReport {
             {
               user: "帮我分析这段 JD 是否适合我：Agent 后训练，负责 GRPO 和 Reward Model",
               assistant:
-                "可以先做初步判断，但需要完整 JD、公司、团队、薪资和职责占比后才能创建正式 Opportunity。",
+                "可以先做初步判断，但需要完整 JD、公司、团队、薪酬区间和职责占比后才能创建正式 Opportunity。",
               agentRunId: "example-agent-run",
               agentStepsCount: 3,
               createdEvidence: false,

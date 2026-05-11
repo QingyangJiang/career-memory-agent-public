@@ -19,7 +19,7 @@
     "maxRisks": 0,
     "maxOpenQuestions": 0,
     "maxPendingActions": 0,
-    "mustMentionAny": ["完整 JD", "公司", "团队", "薪资", "owner", "GRPO", "Reward Model"],
+    "mustMentionAny": ["完整 JD", "公司", "团队", "薪酬区间", "owner", "GRPO", "Reward Model"],
     "mustNotMention": ["保存为记忆", "MemorySuggestion", "已创建 Opportunity", "已写入长期 Memory"]
   }
 }

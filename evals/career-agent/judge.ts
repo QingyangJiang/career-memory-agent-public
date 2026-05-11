@@ -362,7 +362,7 @@ export function judgeCase(observation: CaseObservation, expectations: EvalExpect
   if (failed.some((item) => /agentSteps|assistantHasAgentRun/.test(item.name))) errorTaxonomy.add("ERROR_TRACE_MISSING");
   const answer = observation.turns.map((turn) => turn.assistant).join("\n");
   if (/结论\n依据\n风险\n下一步动作/.test(answer)) errorTaxonomy.add("ERROR_RIGID_TEMPLATE");
-  if (failed.some((item) => item.name === "mustMentionAny") && (last?.missingFieldsCount ?? 0) === 0 && expectations.mustMentionAny?.some((item) => ["完整 JD", "公司", "团队", "薪资", "owner", "职责占比"].includes(item))) {
+  if (failed.some((item) => item.name === "mustMentionAny") && (last?.missingFieldsCount ?? 0) === 0 && expectations.mustMentionAny?.some((item) => ["完整 JD", "公司", "团队", "薪酬区间", "owner", "职责占比"].includes(item))) {
     errorTaxonomy.add("ERROR_INSUFFICIENT_CLARIFICATION");
   }
   if (observation.id === "markdown_and_trace" && !answer.includes("|")) errorTaxonomy.add("ERROR_MARKDOWN_RENDERING");

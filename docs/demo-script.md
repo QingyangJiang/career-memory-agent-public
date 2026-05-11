@@ -56,7 +56,7 @@ Paste a reasonably complete JD, for example:
 2. 有 TypeScript 或 Python 工程经验；
 3. 理解 RLHF / DPO / GRPO / reward modeling 基本概念；
 4. 能把用户反馈转成可复现 eval case。
-薪资：Demo Band A，结构包含 base / bonus / equity-like incentive
+薪酬区间：Demo Band A，结构包含 base / bonus / equity-like incentive
 汇报线：Demo AI Platform Lead
 ```
 

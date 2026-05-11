@@ -2,6 +2,9 @@
 
 This public repository and online demo use a synthetic demo persona.
 
+This public repository is the sanitized public portfolio version. It uses synthetic
+persona data and should not link back to any unsanitized repository history.
+
 ## Synthetic Persona
 
 - Name: 林澈 / Lin Che

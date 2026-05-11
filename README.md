@@ -8,7 +8,7 @@ export bridge.
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)]()
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)]()
 [![SQLite](https://img.shields.io/badge/SQLite-local--first-003B57)]()
-[![CI](https://github.com/QingyangJiang/career-opportunity-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/QingyangJiang/career-opportunity-agent/actions/workflows/ci.yml)
+[![CI](https://github.com/QingyangJiang/career-memory-agent-public/actions/workflows/ci.yml/badge.svg)](https://github.com/QingyangJiang/career-memory-agent-public/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)]()
 
 ## 30-second Summary
@@ -17,6 +17,9 @@ Career Memory Agent is a portfolio project for reliable LLM agents. It is not a 
 generator, auto-apply bot, or job board. The core problem is harder: preserving career
 context over many turns while avoiding unsafe memory writes, weak-evidence object
 creation, and untraceable side effects.
+
+This public repository is the sanitized public portfolio version. It uses synthetic
+persona data and should not link back to any unsanitized repository history.
 
 The project demonstrates:
 

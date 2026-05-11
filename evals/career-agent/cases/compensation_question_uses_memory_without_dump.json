@@ -1,10 +1,10 @@
 {
   "id": "compensation_question_uses_memory_without_dump",
-  "title": "薪资问题使用相关记忆但不倾倒完整画像",
+  "title": "薪酬区间问题使用相关记忆但不倾倒完整画像",
   "provider": "deepseek-flash",
   "turns": [
     {
-      "user": "HR 问我期望薪资，我应该怎么说？"
+      "user": "HR 问我期望薪酬区间，我应该怎么说？"
     }
   ],
   "expectations": {
@@ -21,7 +21,7 @@
     "mustCiteMemoryIds": ["mem_demo_compensation_target_current"],
     "mustCiteMemoryType": "Constraint",
     "mustNotCite": ["Aurora Tutor Agent", "RubricFlow", "StepProof", "ChainGraph"],
-    "mustMentionAny": ["HR", "期望薪资", "Demo Band A", "base", "bonus", "可谈判"],
+    "mustMentionAny": ["HR", "期望薪酬区间", "Demo Band A", "base", "bonus", "可谈判"],
     "mustNotMention": ["Reliable Agent", "GRPO", "Reward Model", "Verifier", "纯预训练", "已创建 Opportunity", "MemorySuggestion"]
   }
 }
